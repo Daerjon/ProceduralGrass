@@ -32,7 +32,6 @@ mini::Jelly::JellyApplication::JellyApplication(HINSTANCE instance)
 		XMMatrixScaling(0.005f, 0.005f, 0.005f) *
 		XMMatrixTranslation(0.5f,0.5f,0.5f));
 	m_cbModel = create_buffer<XMFLOAT4X4>(m);
-	m_cbBezier = create_buffer<XMFLOAT4, 64>();
 }
 
 void mini::Jelly::JellyApplication::render()
@@ -86,12 +85,6 @@ void mini::Jelly::JellyApplication::updateControls(float dt)
 		}
 	}
 	
-	if (ImGui::IsKeyPressed(ImGuiKey_Q, false))
-		m_show_bezier = !m_show_bezier;
-	if (ImGui::IsKeyPressed(ImGuiKey_W, false))
-		m_show_wireframe = !m_show_wireframe;
-	if (ImGui::IsKeyPressed(ImGuiKey_E, false))
-		m_show_control_frame = !m_show_control_frame;
 }
 
 void mini::Jelly::JellyApplication::updateCamera()

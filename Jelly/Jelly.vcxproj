@@ -96,34 +96,23 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="bezierCube.cpp" />
-    <ClCompile Include="boundsSystem.cpp" />
-    <ClCompile Include="myModel.cpp" />
-    <ClCompile Include="dynamicSystem.cpp" />
     <ClCompile Include="guiRenderer.cpp" />
     <ClCompile Include="jellyApplication.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="modelLoader.cpp" />
     <ClCompile Include="myDxApplication.cpp" />
-    <ClCompile Include="springSystem.cpp" />
-    <ClCompile Include="transform.cpp" />
-    <ClCompile Include="wireframe.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="boundsSystem.h" />
-    <ClInclude Include="myModel.h" />
-    <ClInclude Include="dynamicSystem.h" />
     <ClInclude Include="guiRenderer.h" />
     <ClInclude Include="jellyApplication.h" />
-    <ClInclude Include="bezierCube.h" />
-    <ClInclude Include="ModelDescription.h" />
-    <ClInclude Include="modelLoader.h" />
     <ClInclude Include="myDxApplication.h" />
-    <ClInclude Include="springSystem.h" />
-    <ClInclude Include="transform.h" />
-    <ClInclude Include="wireframe.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="GrassCS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="guiPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
