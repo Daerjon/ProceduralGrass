@@ -59,6 +59,26 @@ mini::Jelly::JellyApplication::JellyApplication(HINSTANCE instance)
 	};
 	m_inputLayout = m_device.CreateInputLayout(inputLayout, 1, vsBytes);
 
+	XMFLOAT3 vtx[] = {
+		{0.05f, 0, 0},
+		{-0.05f, 0, 0},
+		{0.05f, 1.0f / 7, 0},
+		{-0.05f, 1.0f / 7, 0},
+		{0.05f, 2.0f / 7, 0},
+		{-0.05f, 2.0f / 7, 0},
+		{0.05f, 3.0f / 7, 0},
+		{-0.05f, 3.0f / 7, 0},
+		{0.05f, 4.0f / 7, 0},
+		{-0.05f, 4.0f / 7, 0},
+
+		{0.05f, 5.0f / 7, 0},
+		{-0.05f, 5.0f / 7, 0},
+		{0.04f, 6.0f / 7, 0},
+		{-0.04f, 6.0f / 7, 0},
+
+		{0.0f, 1, 0},
+	};
+	m_bladeBuffer = m_device.CreateVertexBuffer(vtx);
 
 	auto psBytes = m_device.LoadByteCode(L"Test"  L"PS.cso");
 	m_test_ps = m_device.CreatePixelShader(psBytes);
@@ -73,6 +93,20 @@ void mini::Jelly::JellyApplication::render()
 	m_device.context()->ClearRenderTargetView(m_renderTargetView.get(), clearColor);
 	m_device.context()->ClearDepthStencilView(m_depthStencilView.get(), D3D11_CLEAR_DEPTH, 1, 0);
 
+
+	m_device.context()->VSSetShader(m_test_vs.get(), nullptr, 0);
+	m_device.context()->PSSetShader(m_test_ps.get(), nullptr, 0);
+
+	m_device.context()->OMSetDepthStencilState(nullptr, 0);
+
+	ID3D11Buffer* vb[] = { m_bladeBuffer.get() };
+	const UINT strides[] = { sizeof(XMFLOAT3) };
+	const UINT offsets[] = { 0 };
+	m_device.context()->IASetVertexBuffers(0, 1, vb, strides, offsets);
+	m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	m_device.context()->IASetInputLayout(m_inputLayout.get());
+
+	m_device.context()->Draw(15, 0);
 	renderGui();
 }
 
