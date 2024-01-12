@@ -33,25 +33,25 @@ uint hash(float2 fragCoord, uint hash)
     return seed;
 }
 
-float random(float2 fragCoord, inout uint hash)
+float random(float2 fragCoord, inout uint hsh)
 {
-    uint seed = hash(fragCoord, hash);
-    hash = hash(fragCoord, hash);
+    uint seed = hash(fragCoord, hsh);
+    hsh = hash(fragCoord, hsh);
     return uint2float(seed);
 }
 
-float2 random2(float2 fragCoord, inout uint hash)
+float2 random2(float2 fragCoord, inout uint hsh)
 {
-    float x = random(fragCoord, hash);
-    float y = random(fragCoord, hash);
+    float x = random(fragCoord, hsh);
+    float y = random(fragCoord, hsh);
     return float2(x, y);
 }
 
-float3 random3(float2 fragCoord, inout uint hash)
+float3 random3(float2 fragCoord, inout uint hsh)
 {
-    float x = random(fragCoord, hash);
-    float y = random(fragCoord, hash);
-    float z = random(fragCoord, hash);
+    float x = random(fragCoord, hsh);
+    float y = random(fragCoord, hsh);
+    float z = random(fragCoord, hsh);
     return float3(x, y, z);
 }
 
@@ -60,19 +60,19 @@ void main( uint3 DTid : SV_DispatchThreadID )
 {
     uint idx = DTid.x;
     float2 coord = { uint2float(DTid.x), uint2float(DTid.y) };
-    uint hash = hash(coord, 0);
-    OutBuff[idx].Hash = hash;
-    OutBuff[idx].Positon = random3(coord, hash);
-    OutBuff[idx].Facing = random2(coord, hash);
-    OutBuff[idx].Wind = random(coord, hash);
-    OutBuff[idx].Height = random(coord, hash);
-    OutBuff[idx].Width = random(coord, hash);
-    OutBuff[idx].Tilt = random(coord, hash);
-    OutBuff[idx].Bend = random(coord, hash);
-    OutBuff[idx].ClumpFacing = random2(coord, hash);
-    OutBuff[idx].Type = hash(coord, hash);
-    hash = hash(coord, hash);
-    OutBuff[idx].SideCurve = hash(coord, hash);
-    hash = hash(coord, hash);
-    OutBuff[idx].ClumpColor = hash(coord, hash);
+    uint hsh = hash(coord, 0);
+    OutBuff[idx].Hash = hsh;
+    OutBuff[idx].Positon = random3(coord, hsh);
+    OutBuff[idx].Facing = random2(coord, hsh);
+    OutBuff[idx].Wind = random(coord, hsh);
+    OutBuff[idx].Height = random(coord, hsh);
+    OutBuff[idx].Width = random(coord, hsh);
+    OutBuff[idx].Tilt = random(coord, hsh);
+    OutBuff[idx].Bend = random(coord, hsh);
+    OutBuff[idx].ClumpFacing = random2(coord, hsh);
+    OutBuff[idx].Type = hash(coord, hsh);
+    hsh = hash(coord, hsh);
+    OutBuff[idx].SideCurve = hash(coord, hsh);
+    hsh = hash(coord, hsh);
+    OutBuff[idx].ClumpColor = hash(coord, hsh);
 }
