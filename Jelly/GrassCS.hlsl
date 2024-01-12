@@ -1,3 +1,8 @@
+#define MaxX 16
+#define MaxY 16
+#define MaxIdx MaxX*MaxY
+
+
 struct Blade
 {
     float3 Positon;
@@ -15,6 +20,10 @@ struct Blade
 };
 
 RWStructuredBuffer<Blade> OutBuff : register(u0);
+
+RWStructuredBuffer<uint> OutCount : register(u1);
+
+groupshared uint valid[MaxIdx];
 
 float uint2float(uint i)
 {
@@ -55,10 +64,10 @@ float3 random3(float2 fragCoord, inout uint hsh)
     return float3(x, y, z);
 }
 
-[numthreads(1, 1, 1)]
+[numthreads(MaxX, MaxY, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )
 {
-    uint idx = DTid.x;
+    uint idx = MaxY * DTid.x + DTid.y;
     float2 coord = { uint2float(DTid.x), uint2float(DTid.y) };
     uint hsh = hash(coord, 0);
     OutBuff[idx].Hash = hsh;
@@ -75,4 +84,17 @@ void main( uint3 DTid : SV_DispatchThreadID )
     OutBuff[idx].SideCurve = hash(coord, hsh);
     hsh = hash(coord, hsh);
     OutBuff[idx].ClumpColor = hash(coord, hsh);
+    valid[idx] = 1;
+    for (int i = 1; i < 512; i<<=2)
+    {
+        AllMemoryBarrierWithGroupSync();
+        if (idx % (i<<2) == 0)
+        {
+            valid[idx] += valid[idx + i];
+            valid[idx] += valid[idx + 2 * i];
+            valid[idx] += valid[idx + 3 * i];
+        }
+    }
+    if(idx == 0)
+        OutCount[0] = valid[0];
 }
