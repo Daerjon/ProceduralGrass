@@ -79,6 +79,12 @@
     <FxCompile Include="GrassCS.hlsl">
       <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="TestVS.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="TestPS.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Jelly.hlsli">
