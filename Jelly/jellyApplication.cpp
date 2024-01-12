@@ -32,6 +32,17 @@ mini::Jelly::JellyApplication::JellyApplication(HINSTANCE instance)
 		XMMatrixScaling(0.005f, 0.005f, 0.005f) *
 		XMMatrixTranslation(0.5f,0.5f,0.5f));
 	m_cbModel = create_buffer<XMFLOAT4X4>(m);
+
+	ID3D11Buffer* cb = m_cbView;
+	m_device.context()->VSSetConstantBuffers(0, 1, &cb);
+	m_device.context()->DSSetConstantBuffers(0, 1, &cb);
+	cb = m_cbProj;
+	m_device.context()->VSSetConstantBuffers(1, 1, &cb);
+	m_device.context()->DSSetConstantBuffers(1, 1, &cb);
+	cb = m_cbColor;
+	m_device.context()->PSSetConstantBuffers(0, 1, &cb);
+	cb = m_cbModel;
+	m_device.context()->VSSetConstantBuffers(2, 1, &cb);
 }
 
 void mini::Jelly::JellyApplication::render()
