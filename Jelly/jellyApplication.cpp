@@ -43,28 +43,6 @@ mini::Jelly::JellyApplication::JellyApplication(HINSTANCE instance)
 	m_device.context()->PSSetConstantBuffers(0, 1, &cb);
 	cb = m_cbModel;
 	m_device.context()->VSSetConstantBuffers(2, 1, &cb);
-
-	auto vsBytes = m_device.LoadByteCode(L"Test" L"VS.cso");
-	m_test_vs = m_device.CreateVertexShader(vsBytes);
-
-	D3D11_INPUT_ELEMENT_DESC inputLayout[] =
-	{
-		{/*LPCSTR SemanticName*/ "POSITION",
-		/*UINT SemanticIndex*/ 0,
-		/*DXGI_FORMAT Format*/ DXGI_FORMAT_R32G32B32_FLOAT,
-		/*UINT InputSlot*/ 0,
-		/*UINT AlignedByteOffset*/ D3D11_APPEND_ALIGNED_ELEMENT,
-		/*D3D11_INPUT_CLASSIFICATION InputSlotClass*/ D3D11_INPUT_PER_VERTEX_DATA,
-		/*UINT InstanceDataStepRate*/ 0}
-	};
-	m_inputLayout = m_device.CreateInputLayout(inputLayout, 1, vsBytes);
-
-
-	auto psBytes = m_device.LoadByteCode(L"Test"  L"PS.cso");
-	m_test_ps = m_device.CreatePixelShader(psBytes);
-
-	auto csBytes = m_device.LoadByteCode(L"Grass"  L"CS.cso");
-	m_grass_cs = m_device.CreateComputeShader(csBytes);
 }
 
 void mini::Jelly::JellyApplication::render()

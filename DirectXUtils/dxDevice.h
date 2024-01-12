@@ -279,16 +279,6 @@ namespace mini
 			return CreatePixelShader(byteCode, N);
 		}
 		dx_ptr<ID3D11PixelShader> CreatePixelShader(const BYTE* byteCode, size_t byteCodeSize) const;
-		template<int N>
-		dx_ptr<ID3D11ComputeShader> CreateComputeShader(const BYTE(&byteCode)[N]) const
-		{
-			return CreateComputeShader(byteCode, N);
-		}
-		dx_ptr<ID3D11ComputeShader> CreateComputeShader(const std::vector<BYTE>& byteCode) const
-		{
-			return CreateComputeShader(byteCode.data(), byteCode.size());
-		}
-		dx_ptr<ID3D11ComputeShader> CreateComputeShader(const BYTE* byteCode, size_t byteCodeSize) const;
 		dx_ptr<ID3D11RasterizerState> CreateRasterizerState(const directx::rasterizer_info& desc = { }) const;
 		dx_ptr<ID3D11SamplerState> CreateSamplerState(const directx::sampler_info& desc = { }) const;
 		dx_ptr<ID3D11ShaderResourceView> CreateShaderResourceView(ID3D11Resource* res,

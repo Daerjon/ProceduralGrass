@@ -32,11 +32,6 @@ namespace mini::Jelly
 		ConstantBuffer<DirectX::XMFLOAT4X4> m_cbModel;
 		ConstantBuffer<DirectX::XMFLOAT4X4> m_cbColor;
 
-		dx_ptr<ID3D11PixelShader> m_test_ps;
-		dx_ptr<ID3D11VertexShader> m_test_vs;
-		dx_ptr<ID3D11ComputeShader> m_grass_cs;
-		dx_ptr<ID3D11InputLayout > m_inputLayout;
-
 
 		float m_side_length, m_impulse_strength;
 		struct {

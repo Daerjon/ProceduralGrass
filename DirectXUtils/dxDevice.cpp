@@ -211,16 +211,6 @@ dx_ptr<ID3D11PixelShader> DxDevice::CreatePixelShader(const BYTE* byteCode, size
 		throw utils::winapi_error{ hr };
 	return pixelShader;
 }
-dx_ptr<ID3D11ComputeShader> DxDevice::CreateComputeShader(const BYTE* byteCode, size_t byteCodeSize) const
-{
-	assert(m_device);
-	ID3D11ComputeShader* cs = nullptr;
-	auto hr = m_device->CreateComputeShader(byteCode, byteCodeSize, nullptr, &cs);
-	dx_ptr<ID3D11ComputeShader> computeShader(cs);
-	if (FAILED(hr))
-		throw utils::winapi_error{ hr };
-	return computeShader;
-}
 
 dx_ptr<ID3D11RasterizerState> DxDevice::CreateRasterizerState(const rasterizer_info& desc) const
 {
