@@ -38,6 +38,9 @@ namespace mini::Jelly
 		dx_ptr<ID3D11InputLayout > m_inputLayout;
 		dx_ptr<ID3D11Buffer> m_bladeBuffer;
 
+		ID3D11Buffer* m_CS1DataBuffer;
+		ID3D11UnorderedAccessView* g_pBufResultUAV = nullptr;
+
 
 		float m_side_length, m_impulse_strength;
 		struct {

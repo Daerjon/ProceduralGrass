@@ -1,5 +1,6 @@
 #include "jellyApplication.h"
 #include"imgui.h"
+#include "SingleBlade.h"
 
 using namespace DirectX;
 
@@ -43,6 +44,11 @@ mini::Jelly::JellyApplication::JellyApplication(HINSTANCE instance)
 	m_device.context()->PSSetConstantBuffers(0, 1, &cb);
 	cb = m_cbModel;
 	m_device.context()->VSSetConstantBuffers(2, 1, &cb);
+
+	CreateBladeBuffer(m_device, &m_CS1DataBuffer);
+	CreateBufferUAV(m_device, m_CS1DataBuffer, &g_pBufResultUAV);
+	cb = m_CS1DataBuffer;
+	m_device.context()->CSSetUnorderedAccessViews(0, 1, &g_pBufResultUAV, nullptr);
 
 	auto vsBytes = m_device.LoadByteCode(L"Test" L"VS.cso");
 	m_test_vs = m_device.CreateVertexShader(vsBytes);
