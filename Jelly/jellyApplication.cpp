@@ -54,8 +54,8 @@ mini::Jelly::JellyApplication::JellyApplication(HINSTANCE instance)
 		/*DXGI_FORMAT Format*/ DXGI_FORMAT_R32G32B32_FLOAT,
 		/*UINT InputSlot*/ 0,
 		/*UINT AlignedByteOffset*/ D3D11_APPEND_ALIGNED_ELEMENT,
-		/*D3D11_INPUT_CLASSIFICATION InputSlotClass*/ D3D11_INPUT_PER_VERTEX_DATA,
-		/*UINT InstanceDataStepRate*/ 0}
+		/*D3D11_INPUT_CLASSIFICATION InputSlotClass*/ D3D11_INPUT_PER_INSTANCE_DATA,
+		/*UINT InstanceDataStepRate*/ 1}
 	};
 	m_inputLayout = m_device.CreateInputLayout(inputLayout, 1, vsBytes);
 
@@ -79,6 +79,7 @@ mini::Jelly::JellyApplication::JellyApplication(HINSTANCE instance)
 		{0.0f, 1, 0},
 	};
 	m_bladeBuffer = m_device.CreateVertexBuffer(vtx);
+	//m_bladeBuffer = m_device.CreateVertexBuffer<float>(0);
 
 	auto psBytes = m_device.LoadByteCode(L"Test"  L"PS.cso");
 	m_test_ps = m_device.CreatePixelShader(psBytes);
@@ -99,14 +100,15 @@ void mini::Jelly::JellyApplication::render()
 
 	m_device.context()->OMSetDepthStencilState(nullptr, 0);
 
-	ID3D11Buffer* vb[] = { m_bladeBuffer.get() };
-	const UINT strides[] = { sizeof(XMFLOAT3) };
-	const UINT offsets[] = { 0 };
-	m_device.context()->IASetVertexBuffers(0, 1, vb, strides, offsets);
+	ID3D11Buffer* vb[] = { nullptr, m_bladeBuffer.get()};
+	//const UINT strides[] = { sizeof(XMFLOAT3) };
+	const UINT strides[] = { 0,sizeof(XMFLOAT3)};
+	const UINT offsets[] = { 0,0 };
+	m_device.context()->IASetVertexBuffers(0, 2, vb, strides, offsets);
 	m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	m_device.context()->IASetInputLayout(m_inputLayout.get());
 
-	m_device.context()->Draw(15, 0);
+	m_device.context()->DrawInstanced(15,1, 0,0);
 	renderGui();
 }
 
