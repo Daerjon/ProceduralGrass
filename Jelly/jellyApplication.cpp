@@ -45,12 +45,20 @@ mini::Jelly::JellyApplication::JellyApplication(HINSTANCE instance)
 	cb = m_cbModel;
 	m_device.context()->VSSetConstantBuffers(2, 1, &cb);
 
-	buffer_info desc = buffer_info(D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE, MaxBlades * sizeof(SingleBladeSt), desc.Usage = D3D11_USAGE_DEFAULT);
-	desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
-	desc.StructureByteStride = sizeof(SingleBladeSt);
-	m_CS1DataBuffer = m_device.CreateBuffer(desc);
+	buffer_info csDescData = buffer_info(D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE, MaxBlades * sizeof(SingleBladeSt), csDescData.Usage = D3D11_USAGE_DEFAULT);
+	csDescData.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+	csDescData.StructureByteStride = sizeof(SingleBladeSt);
+	m_CS1DataBuffer = m_device.CreateBuffer(csDescData);
 	CreateBufferUAV(m_device, m_CS1DataBuffer.get(), &g_pBufResultUAV);
 	m_device.context()->CSSetUnorderedAccessViews(0, 1, &g_pBufResultUAV, nullptr);
+
+	buffer_info desc = buffer_info(D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE, sizeof(unsigned int));
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+	desc.StructureByteStride = sizeof(unsigned int);
+	m_CS1Number = m_device.CreateBuffer(desc);
+	CreateBufferUAV(m_device, m_CS1Number.get(), &g_pBufNumberUAV);
+	m_device.context()->CSSetUnorderedAccessViews(0, 1, &g_pBufNumberUAV, nullptr);
 
 	auto vsBytes = m_device.LoadByteCode(L"Test" L"VS.cso");
 	m_test_vs = m_device.CreateVertexShader(vsBytes);
@@ -126,7 +134,8 @@ void mini::Jelly::JellyApplication::renderGui()
 void mini::Jelly::JellyApplication::update(utils::clock const& clock)
 {
 	float dt = clock.frame_time();
-	m_device.context()->CSSetUnorderedAccessViews(0, 1, &g_pBufResultUAV, nullptr);
+	ID3D11UnorderedAccessView* ppUAView[2] = { g_pBufResultUAV, g_pBufResultUAV };
+	m_device.context()->CSSetUnorderedAccessViews(0, 2, ppUAView, nullptr);
 	m_device.context()->CSSetShader(m_grass_cs.get(), NULL, 0);
 	m_device.context()->Dispatch(1, 1, 1);
 	ID3D11UnorderedAccessView* ppUAViewnullptr[1] = { nullptr };
@@ -134,7 +143,6 @@ void mini::Jelly::JellyApplication::update(utils::clock const& clock)
 	m_device.context()->DrawInstancedIndirect(m_CS1DataBuffer.get(), 0);
 	updateControls(dt);
 	updateCamera();
-
 }
 
 void mini::Jelly::JellyApplication::updateControls(float dt)

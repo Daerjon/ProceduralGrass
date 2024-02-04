@@ -30,25 +30,25 @@ int p[] = { 151,160,137,91,90,15,
    66,215,61,156,180
    };
 
-double fade(double t)
+float fade(float t)
 {
     return t * t * t * (t * (t * 6 - 15) + 10);
 }
 
-double lerp(double t, double a, double b)
+float lerp(float t, float a, float b)
 {
     return a + t * (b - a);
 }
 
-double grad(int hsh, double x, double y, double z)
+float grad(int hsh, float x, float y, float z)
 {
     int h = hsh & 15;
-    double u = h < 8 ? x : y,
+    float u = h < 8 ? x : y,
              v = h < 4 ? y : h == 12 || h == 14 ? x : z;
     return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
 }
 
-double noise(double x, double y, double z)
+float noise(float x, float y, float z)
 {
     int X = ((int)floor(x)) & 255,
           Y = ((int)floor(y)) & 255,
@@ -56,7 +56,7 @@ double noise(double x, double y, double z)
     x -= floor(x);
     y -= floor(y);
     z -= floor(z);
-    double u = fade(x),
+    float u = fade(x),
              v = fade(y),
              w = fade(z);
     int A = p[X] + Y, AA = p[A] + Z, AB = p[A + 1] + Z,
@@ -90,16 +90,16 @@ struct Blade
 
 RWStructuredBuffer<Blade> OutBuff : register(u0);
 
-//RWStructuredBuffer<uint> OutCount : register(u1);
+RWStructuredBuffer<uint> OutCount : register(u1);
 
 groupshared uint valid[MaxIdx];
 
-float uint2float(uint i)
+float uint2float(uint i) //gives float in (0,1)
 {
     return float(i) / 4294967295.0;
 }
 
-uint hash(float2 fragCoord, uint hash)
+uint hash(float2 fragCoord, uint hash) //gives pseudo-random uint
 {
     uint seed = uint(fragCoord.y * 512 + fragCoord.x) + hash;
     seed ^= 2747636419u;
@@ -111,21 +111,21 @@ uint hash(float2 fragCoord, uint hash)
     return seed;
 }
 
-float random(float2 fragCoord, inout uint hsh)
+float random(float2 fragCoord, inout uint hsh) //gives pseudo-random float (0,1)
 {
     uint seed = hash(fragCoord, hsh);
     hsh = hash(fragCoord, hsh);
     return uint2float(seed);
 }
 
-float2 random2(float2 fragCoord, inout uint hsh)
+float2 random2(float2 fragCoord, inout uint hsh) //gives pair of pseudo-random float (0,1)
 {
     float x = random(fragCoord, hsh);
     float y = random(fragCoord, hsh);
     return float2(x, y);
 }
 
-float3 random3(float2 fragCoord, inout uint hsh)
+float3 random3(float2 fragCoord, inout uint hsh) //gives triple of pseudo-random float (0,1)
 {
     float x = random(fragCoord, hsh);
     float y = random(fragCoord, hsh);
