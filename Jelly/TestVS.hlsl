@@ -11,7 +11,6 @@ struct VSin
 {
     uint iid : SV_InstanceID;
     uint vid : SV_VertexID;
-    
     float3 Position : Position;
     float2 Facing : Facing;
     float Wind : Wind;

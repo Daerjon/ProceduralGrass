@@ -1,5 +1,6 @@
 #include "jellyApplication.h"
 #include"imgui.h"
+#include"renderLayout.h"
 
 using namespace DirectX;
 
@@ -47,23 +48,17 @@ mini::Jelly::JellyApplication::JellyApplication(HINSTANCE instance)
 	auto vsBytes = m_device.LoadByteCode(L"Test" L"VS.cso");
 	m_test_vs = m_device.CreateVertexShader(vsBytes);
 
-	D3D11_INPUT_ELEMENT_DESC inputLayout[] =
-	{
-		{/*LPCSTR SemanticName*/ "POSITION",
-		/*UINT SemanticIndex*/ 0,
-		/*DXGI_FORMAT Format*/ DXGI_FORMAT_R32G32B32_FLOAT,
-		/*UINT InputSlot*/ 1,
-		/*UINT AlignedByteOffset*/ D3D11_APPEND_ALIGNED_ELEMENT,
-		/*D3D11_INPUT_CLASSIFICATION InputSlotClass*/ D3D11_INPUT_PER_INSTANCE_DATA,
-		/*UINT InstanceDataStepRate*/ 1}
-	};
-	m_inputLayout = m_device.CreateInputLayout(inputLayout, 1, vsBytes);
 
-	std::vector<XMFLOAT3> poss;
+	m_inputLayout = m_device.CreateInputLayout(inputLayout, 12, vsBytes);
+
+	std::vector<inputElement> poss;
 	for(int x = 0; x<100; x++)
 		for (int z = 0; z < 100; z++)
 		{
-			poss.push_back({ static_cast<float>(x)/5,0.0f,static_cast<float>(z)/5 });
+			poss.push_back(
+				inputElement{
+					XMFLOAT3{ static_cast<float>(x) / 5,0.0f,static_cast<float>(z) / 5 }
+				});
 		}
 
 	m_bladeBuffer = m_device.CreateVertexBuffer(poss.data(), poss.size());
@@ -90,7 +85,7 @@ void mini::Jelly::JellyApplication::render()
 
 	ID3D11Buffer* vb[] = { nullptr, m_bladeBuffer.get()};
 	//const UINT strides[] = { sizeof(XMFLOAT3) };
-	const UINT strides[] = { 0,sizeof(XMFLOAT3)};
+	const UINT strides[] = { 0,sizeof(inputElement)};
 	const UINT offsets[] = { 0,0 };
 	m_device.context()->IASetVertexBuffers(0, 2, vb, strides, offsets);
 	m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
