@@ -23,18 +23,6 @@ namespace mini::Jelly
         unsigned int SideCurve;
     };
 
-    HRESULT CreateBladeBuffer(ID3D11Device* pDevice, ID3D11Buffer** BufOut)
-    {
-        *BufOut = nullptr;
-        D3D11_BUFFER_DESC desc = {};
-        desc.ByteWidth = MaxBlades * sizeof(SingleBladeSt);
-        desc.Usage = D3D11_USAGE_DEFAULT;
-        desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
-        desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
-        desc.StructureByteStride = sizeof(SingleBladeSt);
-        return pDevice->CreateBuffer(&desc, nullptr, BufOut);
-    }
-
     HRESULT CreateBufferUAV(ID3D11Device* pDevice, ID3D11Buffer* pBuffer, ID3D11UnorderedAccessView** ppUAVOut)
     {
         D3D11_BUFFER_DESC descBuf = {};
