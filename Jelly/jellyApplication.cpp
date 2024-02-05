@@ -126,7 +126,6 @@ void mini::Jelly::JellyApplication::update(utils::clock const& clock)
 	m_device.context()->Dispatch(1, 1, 1);
 	ID3D11UnorderedAccessView* ppUAViewnullptr[1] = { nullptr };
 	m_device.context()->CSSetUnorderedAccessViews(0, 1, ppUAViewnullptr, nullptr);
-	m_device.context()->DrawInstancedIndirect(m_CS1DataBuffer.get(), 0);
 	updateControls(dt);
 	updateCamera();
 }
