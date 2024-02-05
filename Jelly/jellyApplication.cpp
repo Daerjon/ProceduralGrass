@@ -120,7 +120,7 @@ void mini::Jelly::JellyApplication::renderGui()
 void mini::Jelly::JellyApplication::update(utils::clock const& clock)
 {
 	float dt = clock.frame_time();
-	ID3D11UnorderedAccessView* ppUAView[2] = { g_pBufResultUAV, g_pBufResultUAV };
+	ID3D11UnorderedAccessView* ppUAView[2] = { g_pBufResultUAV, g_pBufNumberUAV };
 	m_device.context()->CSSetUnorderedAccessViews(0, 2, ppUAView, nullptr);
 	m_device.context()->CSSetShader(m_grass_cs.get(), NULL, 0);
 	m_device.context()->Dispatch(1, 1, 1);
