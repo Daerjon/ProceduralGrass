@@ -106,6 +106,7 @@
     <ClInclude Include="jellyApplication.h" />
     <ClInclude Include="myDxApplication.h" />
     <ClInclude Include="renderLayout.h" />
+    <ClInclude Include="SingleBlade.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="GrassCS.hlsl">
