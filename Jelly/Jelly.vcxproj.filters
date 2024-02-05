@@ -44,6 +44,9 @@
     <ClInclude Include="jellyApplication.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="renderLayout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="SingleBlade.h">
       <Filter>Header Files</Filter>
     </ClInclude>

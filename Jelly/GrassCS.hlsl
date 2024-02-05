@@ -90,7 +90,7 @@ struct Blade
 
 RWStructuredBuffer<Blade> OutBuff : register(u0);
 
-RWStructuredBuffer<uint> OutCount : register(u1);
+//RWStructuredBuffer<uint> OutCount : register(u1);
 
 groupshared uint valid[MaxIdx];
 

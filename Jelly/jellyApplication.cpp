@@ -1,5 +1,7 @@
 #include "jellyApplication.h"
 #include"imgui.h"
+
+#include"renderLayout.h"
 #include "SingleBlade.h"
 
 using namespace DirectX;
@@ -63,38 +65,21 @@ mini::Jelly::JellyApplication::JellyApplication(HINSTANCE instance)
 	auto vsBytes = m_device.LoadByteCode(L"Test" L"VS.cso");
 	m_test_vs = m_device.CreateVertexShader(vsBytes);
 
-	D3D11_INPUT_ELEMENT_DESC inputLayout[] =
-	{
-		{/*LPCSTR SemanticName*/ "POSITION",
-		/*UINT SemanticIndex*/ 0,
-		/*DXGI_FORMAT Format*/ DXGI_FORMAT_R32G32B32_FLOAT,
-		/*UINT InputSlot*/ 0,
-		/*UINT AlignedByteOffset*/ D3D11_APPEND_ALIGNED_ELEMENT,
-		/*D3D11_INPUT_CLASSIFICATION InputSlotClass*/ D3D11_INPUT_PER_VERTEX_DATA,
-		/*UINT InstanceDataStepRate*/ 0}
-	};
-	m_inputLayout = m_device.CreateInputLayout(inputLayout, 1, vsBytes);
 
-	XMFLOAT3 vtx[] = {
-		{0.05f, 0, 0},
-		{-0.05f, 0, 0},
-		{0.05f, 1.0f / 7, 0},
-		{-0.05f, 1.0f / 7, 0},
-		{0.05f, 2.0f / 7, 0},
-		{-0.05f, 2.0f / 7, 0},
-		{0.05f, 3.0f / 7, 0},
-		{-0.05f, 3.0f / 7, 0},
-		{0.05f, 4.0f / 7, 0},
-		{-0.05f, 4.0f / 7, 0},
+	m_inputLayout = m_device.CreateInputLayout(inputLayout, 12, vsBytes);
 
-		{0.05f, 5.0f / 7, 0},
-		{-0.05f, 5.0f / 7, 0},
-		{0.04f, 6.0f / 7, 0},
-		{-0.04f, 6.0f / 7, 0},
+	std::vector<inputElement> poss;
+	for(int x = 0; x<100; x++)
+		for (int z = 0; z < 100; z++)
+		{
+			poss.push_back(
+				inputElement{
+					XMFLOAT3{ static_cast<float>(x) / 5,0.0f,static_cast<float>(z) / 5 }
+				});
+		}
 
-		{0.0f, 1, 0},
-	};
-	m_bladeBuffer = m_device.CreateVertexBuffer(vtx);
+	m_bladeBuffer = m_device.CreateVertexBuffer(poss.data(), poss.size());
+	//m_bladeBuffer = m_device.CreateVertexBuffer<float>(0);
 
 	auto psBytes = m_device.LoadByteCode(L"Test"  L"PS.cso");
 	m_test_ps = m_device.CreatePixelShader(psBytes);
@@ -115,14 +100,15 @@ void mini::Jelly::JellyApplication::render()
 
 	m_device.context()->OMSetDepthStencilState(nullptr, 0);
 
-	ID3D11Buffer* vb[] = { m_bladeBuffer.get() };
-	const UINT strides[] = { sizeof(XMFLOAT3) };
-	const UINT offsets[] = { 0 };
-	m_device.context()->IASetVertexBuffers(0, 1, vb, strides, offsets);
+	ID3D11Buffer* vb[] = { nullptr, m_bladeBuffer.get()};
+	//const UINT strides[] = { sizeof(XMFLOAT3) };
+	const UINT strides[] = { 0,sizeof(inputElement)};
+	const UINT offsets[] = { 0,0 };
+	m_device.context()->IASetVertexBuffers(0, 2, vb, strides, offsets);
 	m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	m_device.context()->IASetInputLayout(m_inputLayout.get());
 
-	m_device.context()->Draw(15, 0);
+	m_device.context()->DrawInstanced(15,10000,0,0);
 	renderGui();
 }
 
