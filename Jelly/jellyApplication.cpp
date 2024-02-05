@@ -109,7 +109,7 @@ void mini::Jelly::JellyApplication::render()
 	m_device.context()->IASetInputLayout(m_inputLayout.get());
 	m_device.context()->DrawInstanced(15,256,0,0);
 	ID3D11ShaderResourceView* ppSRViewnullptr[1] = { nullptr };
-	m_device.context()->VSSetShaderResources(0, 0, ppSRViewnullptr);
+	m_device.context()->VSSetShaderResources(2, 1, ppSRViewnullptr);
 	renderGui();
 }
 

@@ -25,6 +25,24 @@ struct VSin
     uint SideCurve : SideCurve;
 };
 
+struct Blade
+{
+    float3 Position;
+    float2 Facing;
+    float Wind;
+    uint Hash;
+    uint Type;
+    float2 ClumpFacing;
+    uint ClumpColor;
+    float Height;
+    float Width;
+    float Tilt;
+    float Bend;
+    uint SideCurve;
+};
+
+RWStructuredBuffer<Blade> Data : register(u2);
+
 float4 main(VSin i) : SV_POSITION
 {
     const float3 vtx[15] =
@@ -45,6 +63,9 @@ float4 main(VSin i) : SV_POSITION
         float3(-0.04f, 6.0f / 7, 0),
         float3(0.0f, 1, 0)
     };
-    float3 pos = vtx[i.vid] + i.Position;
+    
+    Blade blade = Data[i.iid];
+    
+    float3 pos = vtx[i.vid] + blade.Position;
     return mul(projMatrix, mul(viewMatrix, float4(pos, 1)));
 }

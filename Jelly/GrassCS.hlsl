@@ -1,3 +1,4 @@
+#pragma target 5.1
 #define MaxX 16
 #define MaxY 16
 #define MaxIdx MaxX*MaxY
@@ -90,7 +91,7 @@ struct Blade
 
 RWStructuredBuffer<Blade> OutBuff : register(u0);
 
-RWStructuredBuffer<uint> OutCount : register(u1);
+//RWStructuredBuffer<uint> OutCount : register(u1);
 
 groupshared uint valid[MaxIdx];
 
@@ -165,6 +166,6 @@ void main( uint3 DTid : SV_DispatchThreadID )
             valid[idx] += valid[idx + 3 * i];
         }
     }
-    if(idx == 0)
-        OutCount[0] = valid[0];
+    //if(idx == 0)
+    //    OutCount[0] = valid[0];
 }
