@@ -39,10 +39,12 @@ namespace mini::Jelly
 		dx_ptr<ID3D11Buffer> m_bladeBuffer;
 
 		dx_ptr<ID3D11Buffer> m_CS1DataBuffer;
-		ID3D11UnorderedAccessView* g_pBufResultUAV = nullptr;
+		ID3D11UnorderedAccessView* m_BuffDataUAV;
+		ID3D11ShaderResourceView* m_BuffDataSRV;
 
 		dx_ptr<ID3D11Buffer> m_CS1Number;
-		ID3D11UnorderedAccessView* g_pBufNumberUAV = nullptr;
+		ID3D11UnorderedAccessView* m_BuffNumberUAV;
+		ID3D11ShaderResourceView* m_BuffNumberSRV;
 
 
 		float m_side_length, m_impulse_strength;

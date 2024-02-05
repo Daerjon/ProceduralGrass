@@ -9,18 +9,18 @@ namespace mini::Jelly
 {
     struct SingleBladeSt
     {
-        DirectX::XMFLOAT3 Positon;
+        DirectX::XMFLOAT3 Position;
         DirectX::XMFLOAT2 Facing;
         float Wind;
-        unsigned int Hash;
-        unsigned int Type;
+        uint32_t Hash;
+        uint32_t Type;
         DirectX::XMFLOAT2 ClumpFacing;
-        unsigned int ClumpColor;
+        uint32_t ClumpColor;
         float Height;
         float Width;
         float Tilt;
         float Bend;
-        unsigned int SideCurve;
+        uint32_t SideCurve;
     };
 
     HRESULT CreateBufferUAV(ID3D11Device* pDevice, ID3D11Buffer* pBuffer, ID3D11UnorderedAccessView** ppUAVOut)
@@ -32,28 +32,43 @@ namespace mini::Jelly
         desc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
         desc.Buffer.FirstElement = 0;
 
-        if (descBuf.MiscFlags & D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS)
+        if (descBuf.MiscFlags & D3D11_RESOURCE_MISC_BUFFER_STRUCTURED)
         {
-            // This is a Raw Buffer
+            // This is a Structured Buffer
 
-            desc.Format = DXGI_FORMAT_R32_TYPELESS; // Format must be DXGI_FORMAT_R32_TYPELESS, when creating Raw Unordered Access View
-            desc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_RAW;
-            desc.Buffer.NumElements = descBuf.ByteWidth / 4;
+            desc.Format = DXGI_FORMAT_UNKNOWN;      // Format must be must be DXGI_FORMAT_UNKNOWN, when creating a View of a Structured Buffer
+            desc.Buffer.NumElements = descBuf.ByteWidth / descBuf.StructureByteStride;
         }
         else
-            if (descBuf.MiscFlags & D3D11_RESOURCE_MISC_BUFFER_STRUCTURED)
-            {
-                // This is a Structured Buffer
-
-                desc.Format = DXGI_FORMAT_UNKNOWN;      // Format must be must be DXGI_FORMAT_UNKNOWN, when creating a View of a Structured Buffer
-                desc.Buffer.NumElements = descBuf.ByteWidth / descBuf.StructureByteStride;
-            }
-            else
-            {
-                return E_INVALIDARG;
-            }
+        {
+            return E_INVALIDARG;
+        }
 
         return pDevice->CreateUnorderedAccessView(pBuffer, &desc, ppUAVOut);
+    }
+
+    HRESULT CreateBufferSRV(ID3D11Device* pDevice, ID3D11Buffer* pBuffer, ID3D11ShaderResourceView** ppSRVOut)
+    {
+        D3D11_BUFFER_DESC descBuf = {};
+        pBuffer->GetDesc(&descBuf);
+
+        D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
+        desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+        desc.Buffer.FirstElement = 0;
+
+        if (descBuf.MiscFlags & D3D11_RESOURCE_MISC_BUFFER_STRUCTURED)
+        {
+            // This is a Structured Buffer
+
+            desc.Format = DXGI_FORMAT_UNKNOWN;      // Format must be must be DXGI_FORMAT_UNKNOWN, when creating a View of a Structured Buffer
+            desc.Buffer.NumElements = descBuf.ByteWidth / descBuf.StructureByteStride;
+        }
+        else
+        {
+            return E_INVALIDARG;
+        }
+
+        return pDevice->CreateShaderResourceView(pBuffer, &desc, ppSRVOut);
     }
 
 }

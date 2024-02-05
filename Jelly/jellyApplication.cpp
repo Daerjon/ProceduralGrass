@@ -51,16 +51,16 @@ mini::Jelly::JellyApplication::JellyApplication(HINSTANCE instance)
 	csDescData.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 	csDescData.StructureByteStride = sizeof(SingleBladeSt);
 	m_CS1DataBuffer = m_device.CreateBuffer(csDescData);
-	CreateBufferUAV(m_device, m_CS1DataBuffer.get(), &g_pBufResultUAV);
-	m_device.context()->CSSetUnorderedAccessViews(0, 1, &g_pBufResultUAV, nullptr);
+	CreateBufferUAV(m_device, m_CS1DataBuffer.get(), &m_BuffDataUAV);
+	CreateBufferSRV(m_device, m_CS1DataBuffer.get(), &m_BuffDataSRV);
 
 	buffer_info desc = buffer_info(D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE, sizeof(unsigned int));
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 	desc.StructureByteStride = sizeof(unsigned int);
 	m_CS1Number = m_device.CreateBuffer(desc);
-	CreateBufferUAV(m_device, m_CS1Number.get(), &g_pBufNumberUAV);
-	m_device.context()->CSSetUnorderedAccessViews(0, 1, &g_pBufNumberUAV, nullptr);
+	CreateBufferUAV(m_device, m_CS1Number.get(), &m_BuffNumberUAV);
+	CreateBufferSRV(m_device, m_CS1Number.get(), &m_BuffNumberSRV);
 
 	auto vsBytes = m_device.LoadByteCode(L"Test" L"VS.cso");
 	m_test_vs = m_device.CreateVertexShader(vsBytes);
@@ -94,7 +94,6 @@ void mini::Jelly::JellyApplication::render()
 	m_device.context()->ClearRenderTargetView(m_renderTargetView.get(), clearColor);
 	m_device.context()->ClearDepthStencilView(m_depthStencilView.get(), D3D11_CLEAR_DEPTH, 1, 0);
 
-
 	m_device.context()->VSSetShader(m_test_vs.get(), nullptr, 0);
 	m_device.context()->PSSetShader(m_test_ps.get(), nullptr, 0);
 
@@ -105,10 +104,12 @@ void mini::Jelly::JellyApplication::render()
 	const UINT strides[] = { 0,sizeof(inputElement)};
 	const UINT offsets[] = { 0,0 };
 	m_device.context()->IASetVertexBuffers(0, 2, vb, strides, offsets);
+	m_device.context()->VSSetShaderResources(2, 1, &m_BuffDataSRV);
 	m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	m_device.context()->IASetInputLayout(m_inputLayout.get());
-
-	m_device.context()->DrawInstanced(15,10000,0,0);
+	m_device.context()->DrawInstanced(15,256,0,0);
+	ID3D11ShaderResourceView* ppSRViewnullptr[1] = { nullptr };
+	m_device.context()->VSSetShaderResources(0, 0, ppSRViewnullptr);
 	renderGui();
 }
 
@@ -120,12 +121,12 @@ void mini::Jelly::JellyApplication::renderGui()
 void mini::Jelly::JellyApplication::update(utils::clock const& clock)
 {
 	float dt = clock.frame_time();
-	ID3D11UnorderedAccessView* ppUAView[2] = { g_pBufResultUAV, g_pBufNumberUAV };
+	ID3D11UnorderedAccessView* ppUAView[2] = { m_BuffDataUAV, m_BuffNumberUAV };
 	m_device.context()->CSSetUnorderedAccessViews(0, 2, ppUAView, nullptr);
 	m_device.context()->CSSetShader(m_grass_cs.get(), NULL, 0);
 	m_device.context()->Dispatch(1, 1, 1);
-	ID3D11UnorderedAccessView* ppUAViewnullptr[1] = { nullptr };
-	m_device.context()->CSSetUnorderedAccessViews(0, 1, ppUAViewnullptr, nullptr);
+	ID3D11UnorderedAccessView* ppUAViewnullptr[2] = { nullptr, nullptr };
+	m_device.context()->CSSetUnorderedAccessViews(0, 2, ppUAViewnullptr, nullptr);
 	updateControls(dt);
 	updateCamera();
 }
