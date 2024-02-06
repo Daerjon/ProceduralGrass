@@ -36,6 +36,7 @@ namespace mini::Jelly
 		ConstantBuffer<DirectX::XMFLOAT4X4> m_cbColor;
 
 		float m_time;
+		float m_fps;
 		ConstantBuffer<DirectX::XMFLOAT4> m_cbTime;
 		ConstantBuffer<DirectX::XMINT4> m_cbGroup;
 
