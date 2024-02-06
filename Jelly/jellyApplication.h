@@ -39,10 +39,15 @@ namespace mini::Jelly
 		ConstantBuffer<DirectX::XMFLOAT4> m_cbTime;
 		ConstantBuffer<DirectX::XMINT4> m_cbGroup;
 
+		dx_ptr<ID3D11PixelShader> m_ground_ps;
+		dx_ptr<ID3D11VertexShader> m_ground_vs;
+		dx_ptr<ID3D11InputLayout > m_groundinputLayout;
+		dx_ptr<ID3D11Buffer> m_groundBuffer;
+
+		dx_ptr<ID3D11ComputeShader> m_grass_cs;
 		dx_ptr<ID3D11PixelShader> m_test_ps;
 		dx_ptr<ID3D11VertexShader> m_test_vs;
-		dx_ptr<ID3D11ComputeShader> m_grass_cs;
-		dx_ptr<ID3D11InputLayout > m_inputLayout;
+		dx_ptr<ID3D11InputLayout > m_grassinputLayout;
 		dx_ptr<ID3D11Buffer> m_bladeBuffer;
 		dx_ptr<ID3D11RasterizerState> m_rasterizerState;
 

@@ -91,6 +91,12 @@
     <FxCompile Include="TestPS.hlsl">
       <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="GroundVS.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="GroundPS.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Jelly.hlsli">
@@ -100,6 +106,9 @@
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="Phong.hlsli">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Noise.hlsli">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>
