@@ -3,7 +3,6 @@ struct PSin
 {
     uint Color : Color;
     float3 ViewNormal : Normal;
-    float3 ViewPosition : Position;
     float3 ViewLight : Light;
     float4 Position : SV_Position;
 };
