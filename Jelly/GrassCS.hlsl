@@ -91,7 +91,7 @@ struct Blade
     float Wind;
     uint Hash;
     uint Type;
-    int2 ClumpFacing;
+    float2 ClumpFacing;
     uint ClumpColor;
     float Height;
     float Width;
