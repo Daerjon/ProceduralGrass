@@ -1,5 +1,5 @@
 #pragma target 5.1
-#define MaxX 768
+#define MaxX 400
 #define MaxY 1
 #define MaxIdx MaxX*MaxY
 #define GroupsX 20
@@ -160,59 +160,45 @@ float3 random3(uint num, inout uint hsh) //gives triple of pseudo-random float (
 
 int2 getClump(float3 pos)
 {
-    float clumpVar = 0.7;
-    
-    float clump[9];
-    float2 vec = (float2(group.x - 1, group.y - 1) + clumpVar * random2(hash(GroupsY * (group.x - 1) + (group.y - 1), 0))) * 5 - pos.xz;
-    clump[0] = dot(vec, vec);
-    vec = (float2(group.x - 1, group.y) + clumpVar * random2(hash(GroupsY * (group.x - 1) + (group.y), 0))) * 5 - pos.xz;
-    clump[1] = dot(vec, vec);
-    vec = (float2(group.x - 1, group.y + 1) + clumpVar * random2(hash(GroupsY * (group.x - 1) + (group.y + 1), 0))) * 5 - pos.xz;
-    clump[2] = dot(vec, vec);
-    vec = (float2(group.x, group.y - 1) + clumpVar * random2(hash(GroupsY * (group.x) + (group.y - 1), 0))) * 5 - pos.xz;
-    clump[3] = dot(vec, vec);
-    vec = (float2(group.x, group.y) + clumpVar * random2(hash(GroupsY * (group.x) + (group.y), 0))) * 5 - pos.xz;
-    clump[4] = dot(vec, vec);
-    vec = (float2(group.x, group.y + 1) + clumpVar * random2(hash(GroupsY * (group.x) + (group.y + 1), 0))) * 5 - pos.xz;
-    clump[5] = dot(vec, vec);
-    vec = (float2(group.x + 1, group.y - 1) + clumpVar * random2(hash(GroupsY * (group.x + 1) + (group.y - 1), 0))) * 5 - pos.xz;
-    clump[6] = dot(vec, vec);
-    vec = (float2(group.x + 1, group.y) + clumpVar * random2(hash(GroupsY * (group.x + 1) + (group.y), 0))) * 5 - pos.xz;
-    clump[7] = dot(vec, vec);
-    vec = (float2(group.x + 1, group.y + 1) + clumpVar * random2(hash(GroupsY * (group.x + 1) + (group.y + 1), 0))) * 5 - pos.xz;
-    clump[8] = dot(vec, vec);
+    float2 vec = (float2(group.x - 1, group.y - 1) + 0.5 * random2(hash(GroupsY * (group.x - 1) + (group.y - 1), 0))) * 5 - pos.xz;
+    float clump00 = dot(vec, vec);
+    vec = (float2(group.x - 1, group.y) + 0.5 * random2(hash(GroupsY * (group.x - 1) + (group.y), 0))) * 5 - pos.xz;
+    float clump01 = dot(vec, vec);
+    vec = (float2(group.x - 1, group.y + 1) + 0.5 * random2(hash(GroupsY * (group.x - 1) + (group.y + 1), 0))) * 5 - pos.xz;
+    float clump02 = dot(vec, vec);
+    vec = (float2(group.x, group.y - 1) + 0.5 * random2(hash(GroupsY * (group.x) + (group.y - 1), 0))) * 5 - pos.xz;
+    float clump10 = dot(vec, vec);
+    vec = (float2(group.x, group.y) + 0.5 * random2(hash(GroupsY * (group.x) + (group.y), 0))) * 5 - pos.xz;
+    float clump11 = dot(vec, vec);
+    vec = (float2(group.x, group.y + 1) + 0.5 * random2(hash(GroupsY * (group.x) + (group.y + 1), 0))) * 5 - pos.xz;
+    float clump12 = dot(vec, vec);
+    vec = (float2(group.x + 1, group.y - 1) + 0.5 * random2(hash(GroupsY * (group.x + 1) + (group.y - 1), 0))) * 5 - pos.xz;
+    float clump20 = dot(vec, vec);
+    vec = (float2(group.x + 1, group.y) + 0.5 * random2(hash(GroupsY * (group.x + 1) + (group.y), 0))) * 5 - pos.xz;
+    float clump21 = dot(vec, vec);
+    vec = (float2(group.x + 1, group.y + 1) + 0.5 * random2(hash(GroupsY * (group.x + 1) + (group.y + 1), 0))) * 5 - pos.xz;
+    float clump22 = dot(vec, vec);
 
-    float mind = clump[0];
-    int2 group = float2(-1, -1);
-    for (int i = 1; i < 9; i++)
-    {
-        if(clump[i]<mind)
-        {
-            mind = clump[i];
-            group = float2(i / 3 - 1, i % 3 - 1);
-        }
-    }
-    return group;
-    //float mind = min(clump00, min(clump01, min(clump02, min(clump10, min(clump11, min(clump12, min(clump20, min(clump21, clump22))))))));
+    float mind = min(clump00, min(clump01, min(clump02, min(clump10, min(clump11, min(clump12, min(clump20, min(clump21, clump22))))))));
     
-    //if (mind == clump00)
-    //    return int2(group.x - 1, group.y - 1);
-    //else if (mind == clump01)
-    //    return int2(group.x - 1, group.y);
-    //else if (mind == clump02)
-    //    return int2(group.x - 1, group.y + 1);
-    //else if (mind == clump10)
-    //    return int2(group.x, group.y - 1);
-    //else if (mind == clump11)
-    //    return int2(group.x, group.y);
-    //else if (mind == clump12)
-    //    return int2(group.x, group.y + 1);
-    //else if (mind == clump20)
-    //    return int2(group.x + 1, group.y - 1);
-    //else if (mind == clump21)
-    //    return int2(group.x + 1, group.y);
-    //else
-    //    return int2(group.x + 1, group.y + 1);
+    if (mind == clump00)
+        return int2(group.x - 1, group.y - 1);
+    else if (mind == clump01)
+        return int2(group.x - 1, group.y);
+    else if (mind == clump02)
+        return int2(group.x - 1, group.y + 1);
+    else if (mind == clump10)
+        return int2(group.x, group.y - 1);
+    else if (mind == clump11)
+        return int2(group.x, group.y);
+    else if (mind == clump12)
+        return int2(group.x, group.y + 1);
+    else if (mind == clump20)
+        return int2(group.x + 1, group.y - 1);
+    else if (mind == clump21)
+        return int2(group.x + 1, group.y);
+    else
+        return int2(group.x + 1, group.y + 1);
 }
 
 [numthreads(MaxX, MaxY, 1)]
