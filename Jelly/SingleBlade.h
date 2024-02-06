@@ -53,7 +53,7 @@ namespace mini::Jelly
         pBuffer->GetDesc(&descBuf);
 
         D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
-        desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+        desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
         desc.Buffer.FirstElement = 0;
 
         if (descBuf.MiscFlags & D3D11_RESOURCE_MISC_BUFFER_STRUCTURED)
@@ -71,4 +71,20 @@ namespace mini::Jelly
         return pDevice->CreateShaderResourceView(pBuffer, &desc, ppSRVOut);
     }
 
+    ID3D11Buffer* CreateAndCopyToBuf(ID3D11Device* pDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3D11Buffer* pBuffer)
+    {
+        ID3D11Buffer* buf = nullptr;
+
+        D3D11_BUFFER_DESC desc = {};
+        pBuffer->GetDesc(&desc);
+        desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        desc.Usage = D3D11_USAGE_DEFAULT;
+        desc.BindFlags = 0;
+        desc.MiscFlags = 0;
+        if (SUCCEEDED(pDevice->CreateBuffer(&desc, nullptr, &buf)))
+        {
+            pd3dImmediateContext->CopyResource(buf, pBuffer);
+        }
+        return buf;
+    }
 }

@@ -24,6 +24,7 @@ namespace mini::Jelly
 
 		void updateCamera();
 
+
 		orbit_camera m_camera;
 		float m_camera_speed;
 		ViewFrustrum m_viewFrustum;
@@ -41,10 +42,15 @@ namespace mini::Jelly
 		dx_ptr<ID3D11Buffer> m_CS1DataBuffer;
 		ID3D11UnorderedAccessView* m_BuffDataUAV;
 		ID3D11ShaderResourceView* m_BuffDataSRV;
+		dx_ptr<ID3D11Buffer> m_DataBuff;
 
 		dx_ptr<ID3D11Buffer> m_CS1Number;
 		ID3D11UnorderedAccessView* m_BuffNumberUAV;
 		ID3D11ShaderResourceView* m_BuffNumberSRV;
+
+		ID3D11ShaderResourceView* ppSRViewnullptr[1] = { nullptr };
+		ID3D11UnorderedAccessView* ppUAViewnullptr[2] = { nullptr, nullptr };
+		ID3D11UnorderedAccessView* ppUAView[2] = { m_BuffDataUAV, m_BuffNumberUAV };
 
 
 		float m_side_length, m_impulse_strength;

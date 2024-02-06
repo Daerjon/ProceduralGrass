@@ -98,18 +98,16 @@ void mini::Jelly::JellyApplication::render()
 	m_device.context()->PSSetShader(m_test_ps.get(), nullptr, 0);
 
 	m_device.context()->OMSetDepthStencilState(nullptr, 0);
-
+	ID3D11Buffer* buf = CreateAndCopyToBuf(m_device, m_device.context().get(), m_CS1DataBuffer.get());
 	ID3D11Buffer* vb[] = { nullptr, m_bladeBuffer.get()};
 	//const UINT strides[] = { sizeof(XMFLOAT3) };
 	const UINT strides[] = { 0,sizeof(inputElement)};
 	const UINT offsets[] = { 0,0 };
 	m_device.context()->IASetVertexBuffers(0, 2, vb, strides, offsets);
-	m_device.context()->VSSetShaderResources(2, 1, &m_BuffDataSRV);
+	m_device.context()->VSGetConstantBuffers(2, 1, &buf);
 	m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	m_device.context()->IASetInputLayout(m_inputLayout.get());
 	m_device.context()->DrawInstanced(15,256,0,0);
-	ID3D11ShaderResourceView* ppSRViewnullptr[1] = { nullptr };
-	m_device.context()->VSSetShaderResources(2, 1, ppSRViewnullptr);
 	renderGui();
 }
 
@@ -121,11 +119,9 @@ void mini::Jelly::JellyApplication::renderGui()
 void mini::Jelly::JellyApplication::update(utils::clock const& clock)
 {
 	float dt = clock.frame_time();
-	ID3D11UnorderedAccessView* ppUAView[2] = { m_BuffDataUAV, m_BuffNumberUAV };
 	m_device.context()->CSSetUnorderedAccessViews(0, 2, ppUAView, nullptr);
 	m_device.context()->CSSetShader(m_grass_cs.get(), NULL, 0);
 	m_device.context()->Dispatch(1, 1, 1);
-	ID3D11UnorderedAccessView* ppUAViewnullptr[2] = { nullptr, nullptr };
 	m_device.context()->CSSetUnorderedAccessViews(0, 2, ppUAViewnullptr, nullptr);
 	updateControls(dt);
 	updateCamera();

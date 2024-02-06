@@ -7,6 +7,23 @@ cbuffer cbProj : register(b1)
 {
     float4x4 projMatrix;
 }
+
+cbuffer Blade : register(b2)
+{
+    float3 Position;
+    float2 Facing;
+    float Wind;
+    uint Hash;
+    uint Type;
+    float2 ClumpFacing;
+    uint ClumpColor;
+    float Height;
+    float Width;
+    float Tilt;
+    float Bend;
+    uint SideCurve;
+};
+
 struct VSin
 {
     uint iid : SV_InstanceID;
@@ -24,24 +41,6 @@ struct VSin
     float Bend : Bend;
     uint SideCurve : SideCurve;
 };
-
-struct Blade
-{
-    float3 Position;
-    float2 Facing;
-    float Wind;
-    uint Hash;
-    uint Type;
-    float2 ClumpFacing;
-    uint ClumpColor;
-    float Height;
-    float Width;
-    float Tilt;
-    float Bend;
-    uint SideCurve;
-};
-
-RWStructuredBuffer<Blade> Data : register(u2);
 
 float4 main(VSin i) : SV_POSITION
 {
@@ -64,8 +63,7 @@ float4 main(VSin i) : SV_POSITION
         float3(0.0f, 1, 0)
     };
     
-    Blade blade = Data[i.iid];
     
-    float3 pos = vtx[i.vid] + blade.Position;
+    float3 pos = vtx[i.vid] + i.iid;
     return mul(projMatrix, mul(viewMatrix, float4(pos, 1)));
 }
