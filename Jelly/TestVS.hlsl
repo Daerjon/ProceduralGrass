@@ -1,3 +1,4 @@
+#include"BezierBasis.hlsli"
 
 cbuffer cbView : register(b0)
 {
@@ -63,9 +64,26 @@ float4 main(VSin i) : SV_POSITION
         float3(-0.04f, 6.0f / 7, 0),
         float3(0.0f, 1, 0)
     };
-    
     Blade blade = Data[i.iid];
+    float s, c;
+    sincos(radians(blade.Tilt*90), s, c);
+    float3 tilted = float3(blade.Facing.x * s, c, blade.Facing.y * s);
+    float3 l = cross(float3(0,1,0), float3(blade.Facing.x, 0, blade.Facing.y));
     
-    float3 pos = vtx[i.vid] + Data[i.iid].Position;
+    float b2[3], db2[3];
+    BezierBasis2(b2, db2, vtx[i.vid].y);
+    
+    float3 cps[3];
+    cps[0] = float3(0, 0, 0);
+    cps[2] = tilted;
+    cps[1] = tilted * 0.6 + 
+    (cross(tilted, l) * blade.Tilt + float3(0, 2, 0) * (1 - blade.Tilt)) * blade.Bend * 0.4;
+    
+    
+    float3 pos =
+    vtx[i.vid].x * l * blade.Width +
+    vtx[i.vid].y * (b2[1] * cps[1] + b2[2] * cps[2]) * blade.Height +
+    blade.Position;
+    
     return mul(projMatrix, mul(viewMatrix, float4(pos, 1)));
 }

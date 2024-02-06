@@ -20,3 +20,20 @@ void BezierBasis(out float b3[4], out float db3[4], float t)
     db3[2] = (b2[1] - b2[2]) * 3;
     db3[3] = b2[2] * 3;
 }
+void BezierBasis2(out float b2[3], out float db2[3], float t)
+{
+    float b1[2];
+    
+    float mt = 1 - t;
+    b1[0] = mt;
+    b1[1] = t;
+	
+    b2[0] = b1[0] * mt;
+    b2[1] = b1[0] * t + b1[1] * mt;
+    b2[2] = b1[1] * t;
+    
+    db2[0] = -b1[0] * 2;
+    db2[1] = (b1[0] - b1[1]) * 2;
+    db2[2] = b1[1] * 2;
+}
+
