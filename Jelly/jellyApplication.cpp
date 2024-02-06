@@ -104,10 +104,11 @@ void mini::Jelly::JellyApplication::render()
 	const UINT strides[] = { 0,sizeof(inputElement)};
 	const UINT offsets[] = { 0,0 };
 	m_device.context()->IASetVertexBuffers(0, 2, vb, strides, offsets);
-	m_device.context()->VSGetConstantBuffers(2, 1, &buf);
+	m_device.context()->VSSetShaderResources(1, 1, &m_BuffDataSRV);
 	m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	m_device.context()->IASetInputLayout(m_inputLayout.get());
 	m_device.context()->DrawInstanced(15,256,0,0);
+	m_device.context()->VSSetShaderResources(2, 1, ppSRViewnullptr);
 	renderGui();
 }
 
