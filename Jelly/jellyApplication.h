@@ -48,11 +48,6 @@ namespace mini::Jelly
 		ID3D11UnorderedAccessView* m_BuffNumberUAV;
 		ID3D11ShaderResourceView* m_BuffNumberSRV;
 
-		ID3D11ShaderResourceView* ppSRViewnullptr[1] = { nullptr };
-		ID3D11UnorderedAccessView* ppUAViewnullptr[2] = { nullptr, nullptr };
-		ID3D11UnorderedAccessView* ppUAView[2] = { m_BuffDataUAV, m_BuffNumberUAV };
-
-
 		float m_side_length, m_impulse_strength;
 		struct {
 			DirectX::XMFLOAT3

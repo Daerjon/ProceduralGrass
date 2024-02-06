@@ -108,7 +108,8 @@ void mini::Jelly::JellyApplication::render()
 	m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	m_device.context()->IASetInputLayout(m_inputLayout.get());
 	m_device.context()->DrawInstanced(15,256,0,0);
-	m_device.context()->VSSetShaderResources(2, 1, ppSRViewnullptr);
+	ID3D11ShaderResourceView* ppSRViewnullptr[1] = { nullptr };
+	m_device.context()->VSSetShaderResources(1, 1, ppSRViewnullptr);
 	renderGui();
 }
 
@@ -120,9 +121,11 @@ void mini::Jelly::JellyApplication::renderGui()
 void mini::Jelly::JellyApplication::update(utils::clock const& clock)
 {
 	float dt = clock.frame_time();
+	ID3D11UnorderedAccessView* ppUAView[2] = { m_BuffDataUAV, m_BuffNumberUAV };
 	m_device.context()->CSSetUnorderedAccessViews(0, 2, ppUAView, nullptr);
 	m_device.context()->CSSetShader(m_grass_cs.get(), NULL, 0);
 	m_device.context()->Dispatch(1, 1, 1);
+	ID3D11UnorderedAccessView* ppUAViewnullptr[2] = { nullptr, nullptr };
 	m_device.context()->CSSetUnorderedAccessViews(0, 2, ppUAViewnullptr, nullptr);
 	updateControls(dt);
 	updateCamera();

@@ -41,7 +41,7 @@ struct Blade
     uint SideCurve;
 };
 
-RWStructuredBuffer<Blade> Data : register(u1);
+StructuredBuffer<Blade> Data : register(t1);
 
 float4 main(VSin i) : SV_POSITION
 {
@@ -66,6 +66,6 @@ float4 main(VSin i) : SV_POSITION
     
     Blade blade = Data[i.iid];
     
-    float3 pos = vtx[i.vid] + 100 * Data[i.iid].Position + i.iid;
+    float3 pos = vtx[i.vid] + Data[i.iid].Position;
     return mul(projMatrix, mul(viewMatrix, float4(pos, 1)));
 }

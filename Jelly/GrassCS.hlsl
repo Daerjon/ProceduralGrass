@@ -100,9 +100,9 @@ float uint2float(uint i) //gives float in (0,1)
     return float(i) / 4294967295.0;
 }
 
-uint hash(float2 fragCoord, uint hash) //gives pseudo-random uint
+uint hash(uint num, uint hash) //gives pseudo-random uint
 {
-    uint seed = uint(fragCoord.y * 512 + fragCoord.x) + hash;
+    uint seed = num + hash;
     seed ^= 2747636419u;
     seed *= 2654435769u;
     seed ^= seed >> 16;
@@ -112,25 +112,25 @@ uint hash(float2 fragCoord, uint hash) //gives pseudo-random uint
     return seed;
 }
 
-float random(float2 fragCoord, inout uint hsh) //gives pseudo-random float (0,1)
+float random(uint num, inout uint hsh) //gives pseudo-random float (0,1)
 {
-    uint seed = hash(fragCoord, hsh);
-    hsh = hash(fragCoord, hsh);
+    uint seed = hash(num, hsh);
+    hsh = hash(num, hsh);
     return uint2float(seed);
 }
 
-float2 random2(float2 fragCoord, inout uint hsh) //gives pair of pseudo-random float (0,1)
+float2 random2(uint num, inout uint hsh) //gives pair of pseudo-random float (0,1)
 {
-    float x = random(fragCoord, hsh);
-    float y = random(fragCoord, hsh);
+    float x = random(num, hsh);
+    float y = random(num, hsh);
     return float2(x, y);
 }
 
-float3 random3(float2 fragCoord, inout uint hsh) //gives triple of pseudo-random float (0,1)
+float3 random3(uint num, inout uint hsh) //gives triple of pseudo-random float (0,1)
 {
-    float x = random(fragCoord, hsh);
-    float y = random(fragCoord, hsh);
-    float z = random(fragCoord, hsh);
+    float x = random(num, hsh);
+    float y = random(num, hsh);
+    float z = random(num, hsh);
     return float3(x, y, z);
 }
 
@@ -138,23 +138,22 @@ float3 random3(float2 fragCoord, inout uint hsh) //gives triple of pseudo-random
 void main( uint3 DTid : SV_DispatchThreadID )
 {
     uint idx = MaxY * DTid.x + DTid.y;
-    float2 coord = { uint2float(DTid.x), uint2float(DTid.y) };
-    uint hsh = hash(coord, 0);
+    uint hsh = hash(idx, 0);
     OutBuff[idx].Hash = hsh;
-    float3 pos = random3(coord, hsh);
+    float3 pos = random3(idx, hsh);
     OutBuff[idx].Positon = pos;
-    OutBuff[idx].Facing = random2(coord, hsh);
+    OutBuff[idx].Facing = random2(idx, hsh);
     OutBuff[idx].Wind = noise(pos.x, pos.y, pos.z);
-    OutBuff[idx].Height = random(coord, hsh);
-    OutBuff[idx].Width = random(coord, hsh);
-    OutBuff[idx].Tilt = random(coord, hsh);
-    OutBuff[idx].Bend = random(coord, hsh);
-    OutBuff[idx].ClumpFacing = random2(coord, hsh);
-    OutBuff[idx].Type = hash(coord, hsh);
-    hsh = hash(coord, hsh);
-    OutBuff[idx].SideCurve = hash(coord, hsh);
-    hsh = hash(coord, hsh);
-    OutBuff[idx].ClumpColor = hash(coord, hsh);
+    OutBuff[idx].Height = random(idx, hsh);
+    OutBuff[idx].Width = random(idx, hsh);
+    OutBuff[idx].Tilt = random(idx, hsh);
+    OutBuff[idx].Bend = random(idx, hsh);
+    OutBuff[idx].ClumpFacing = random2(idx, hsh);
+    OutBuff[idx].Type = hash(idx, hsh);
+    hsh = hash(idx, hsh);
+    OutBuff[idx].SideCurve = hash(idx, hsh);
+    hsh = hash(idx, hsh);
+    OutBuff[idx].ClumpColor = hash(idx, hsh);
     valid[idx] = 1;
     for (int i = 1; i < 512; i<<=2)
     {
