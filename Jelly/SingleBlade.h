@@ -1,6 +1,6 @@
 #pragma once
-#define MaxBladesX 16
-#define MaxBladesY 16
+#define MaxBladesX 768
+#define MaxBladesY 1
 #define MaxBlades MaxBladesX*MaxBladesY
 #include"myDxApplication.h"
 
@@ -69,22 +69,5 @@ namespace mini::Jelly
         }
 
         return pDevice->CreateShaderResourceView(pBuffer, &desc, ppSRVOut);
-    }
-
-    ID3D11Buffer* CreateAndCopyToBuf(ID3D11Device* pDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3D11Buffer* pBuffer)
-    {
-        ID3D11Buffer* buf = nullptr;
-
-        D3D11_BUFFER_DESC desc = {};
-        pBuffer->GetDesc(&desc);
-        desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-        desc.Usage = D3D11_USAGE_DEFAULT;
-        desc.BindFlags = 0;
-        desc.MiscFlags = 0;
-        if (SUCCEEDED(pDevice->CreateBuffer(&desc, nullptr, &buf)))
-        {
-            pd3dImmediateContext->CopyResource(buf, pBuffer);
-        }
-        return buf;
     }
 }
