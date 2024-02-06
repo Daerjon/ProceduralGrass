@@ -62,6 +62,10 @@ mini::Jelly::JellyApplication::JellyApplication(HINSTANCE instance)
 	CreateBufferUAV(m_device, m_CS1Number.get(), &m_BuffNumberUAV);
 	CreateBufferSRV(m_device, m_CS1Number.get(), &m_BuffNumberSRV);
 
+	rasterizer_info ri{};
+	ri.CullMode = D3D11_CULL_NONE;
+	m_rasterizerState = m_device.CreateRasterizerState(ri);
+
 	auto vsBytes = m_device.LoadByteCode(L"Test" L"VS.cso");
 	m_test_vs = m_device.CreateVertexShader(vsBytes);
 
@@ -97,6 +101,7 @@ void mini::Jelly::JellyApplication::render()
 	m_device.context()->VSSetShader(m_test_vs.get(), nullptr, 0);
 	m_device.context()->PSSetShader(m_test_ps.get(), nullptr, 0);
 
+	m_device.context()->RSSetState(m_rasterizerState.get());
 	m_device.context()->OMSetDepthStencilState(nullptr, 0);
 	ID3D11Buffer* buf = CreateAndCopyToBuf(m_device, m_device.context().get(), m_CS1DataBuffer.get());
 	ID3D11Buffer* vb[] = { nullptr, m_bladeBuffer.get()};

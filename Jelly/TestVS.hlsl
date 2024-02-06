@@ -25,6 +25,14 @@ struct VSin
     float Bend : Bend;
     uint SideCurve : SideCurve;
 };
+struct PSin
+{
+    uint Color : Color;
+    float3 ViewNormal : Normal;
+    float3 ViewPosition : Position;
+    float3 ViewLight : Light;
+    float4 Position : SV_Position;
+};
 
 struct Blade
 {
@@ -44,7 +52,7 @@ struct Blade
 
 StructuredBuffer<Blade> Data : register(t1);
 
-float4 main(VSin i) : SV_POSITION
+PSin main(VSin i)
 {
     const float3 vtx[15] =
     {
@@ -84,6 +92,12 @@ float4 main(VSin i) : SV_POSITION
     vtx[i.vid].x * l * blade.Width +
     vtx[i.vid].y * (b2[1] * cps[1] + b2[2] * cps[2]) * blade.Height +
     blade.Position;
-    
-    return mul(projMatrix, mul(viewMatrix, float4(pos, 1)));
+    float3 normal = cross(l, (db2[1] * cps[1] + db2[2] * cps[2]));
+    PSin o;
+    o.ViewPosition = mul(viewMatrix, float4(pos, 1)).xyz;
+    o.Position = mul(projMatrix, float4(o.ViewPosition, 1));
+    o.Color = blade.ClumpColor;
+    o.ViewNormal = mul(viewMatrix, float4(normal,0)).xyz;
+    o.ViewLight = mul(viewMatrix, float4(0, 1, 0, 0)).xyz;
+    return o;
 }

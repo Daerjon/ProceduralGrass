@@ -140,7 +140,8 @@ void main( uint3 DTid : SV_DispatchThreadID )
     uint idx = MaxY * DTid.x + DTid.y;
     uint hsh = hash(idx, 0);
     OutBuff[idx].Hash = hsh;
-    float3 pos = random3(idx, hsh);
+    float3 pos = float3(0, 0, 0);
+    pos.xz = random2(idx, hsh);
     OutBuff[idx].Positon = pos;
     OutBuff[idx].Facing = random2(idx, hsh);
     OutBuff[idx].Wind = noise(pos.x, pos.y, pos.z);
