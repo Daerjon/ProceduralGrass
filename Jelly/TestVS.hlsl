@@ -97,7 +97,7 @@ PSin main(VSin i)
     cps[2] = tilted2;
     
     float3 pos =
-    vtx[i.vid].x * (l1 * b2[0] + l2 * b2[2]) * blade.Width +
+    vtx[i.vid].x * (l1 * (b2[0] + b2[1]) + l2 * b2[2]) * blade.Width +
     vtx[i.vid].y * (b2[1] * cps[1] + b2[2] * cps[2]) * blade.Height +
     blade.Position;
     float3 normal = normalize(cross(l1, db2[1] * cps[1]) + cross(l2, db2[2] * cps[2]));
