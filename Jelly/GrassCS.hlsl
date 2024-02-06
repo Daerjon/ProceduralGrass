@@ -180,7 +180,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
     float3 pos = (Gpos + random3(idx, hsh)) * 5;
     OutBuff[idx].Positon = pos;
     OutBuff[idx].Facing = normalize(2.0f * random2(idx, hsh) - 1.0f);
-    OutBuff[idx].Wind = snoise(float3((pos.x + time.x) / 10.0f, 0, pos.z / 10.0f));
+    OutBuff[idx].Wind = snoise(float3((pos.x + time.x) / 7.0f, time.x/7.0f, pos.z / 7.0f));
     OutBuff[idx].Height = (random(idx, hsh) + random(idx, hsh) + random(idx, hsh) + random(idx, hsh) + random(idx, hsh)) / 10.0f + 0.5f;
     OutBuff[idx].Width = random(idx, hsh) * 0.7f + 0.5f;
     OutBuff[idx].Tilt = random(idx, hsh) * 0.5f;
