@@ -163,22 +163,31 @@ int2 getClump(float3 pos)
     float clumpVar = 0.7;
     
     float mind = 100000.0f;
+    float min2d = 9999.0f;
     int2 groupOffset = float2(-1, -1);
+    int2 groupOffset2 = float2(-1, -1);
     for (int i = -1; i <= 1; i++)
         for (int j = -1; j <= 1; j++)
-    {
-            float2 vec = (
-            float2(float(group.x) + float(i), float(group.y) + float(j)) 
-            + clumpVar * random2(hash(GroupsY * (group.x + i) + (group.y + j), 0))
-            ) * 5 - pos.xz;
-        float clump = dot(vec, vec);
-        if(clump < mind)
         {
-            mind = clump;
-            groupOffset = float2(i, j);
+            float2 vec = (
+            float2(float(group.x) + float(i), float(group.y) + float(j))
+            + clumpVar * random2(GroupsY * (group.x + i) + (group.y + j))
+            ) * 5 - pos.xz;
+            float clump = dot(vec, vec);
+            if (clump < mind)
+            {
+                min2d = mind;
+                mind = clump;
+                groupOffset2 = groupOffset;
+                groupOffset = float2(i, j);
+            }
+            else if (clump < min2d)
+            {
+                min2d = clump;
+                groupOffset2 = float2(i, j);
+            }
         }
-    }
-    return groupOffset;
+    return groupOffset + group.xy;
 }
 
 [numthreads(MaxX, MaxY, 1)]
@@ -187,14 +196,14 @@ void main( uint3 DTid : SV_DispatchThreadID )
     uint groupIdx = hash(20 * group.x + group.y, 0);
     uint idx = MaxY * DTid.x + DTid.y;
     uint hsh = hash(idx, groupIdx);
-    float3 Gpos = float3(group.x, 0.0f , group.y);
+    float3 Gpos = float3(group.x /*+ ((group.y % 2 == 0) ? 0.5f : 0.0f)*/, 0.0f, group.y);
     OutBuff[idx].Hash = hsh;
     float3 pos = (Gpos + random3(idx, hsh)) * 5;
     int2 clump = getClump(pos);
     uint clumpIdx = hash(20 * clump.x + clump.y, 0);
     uint chsh = hash(clumpIdx, 0);
-    float clumpHeight = random(groupIdx, chsh);
-    float clumpWidth = random(groupIdx, chsh);
+    float clumpHeight = random(clumpIdx, chsh);
+    float clumpWidth = random(clumpIdx, chsh);
     OutBuff[idx].Positon = pos;
     OutBuff[idx].Facing = normalize(2.0f * random2(idx, hsh) - 1.0f);
     OutBuff[idx].Wind = snoise(float3((pos.x + time.x), time.x, pos.z) / 7.0f);
