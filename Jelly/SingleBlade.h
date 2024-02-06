@@ -1,5 +1,5 @@
 #pragma once
-#define MaxBladesX 400
+#define MaxBladesX 768
 #define MaxBladesY 1
 #define MaxBlades MaxBladesX*MaxBladesY
 #include"myDxApplication.h"
