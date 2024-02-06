@@ -1,4 +1,5 @@
 #include"BezierBasis.hlsli"
+#include"Noise.hlsli"
 
 cbuffer cbView : register(b0)
 {
@@ -96,11 +97,27 @@ PSin main(VSin i)
     
     cps[2] = tilted2;
     
+    
     float3 pos =
     vtx[i.vid].x * (l1 * (b2[0] + b2[1]) + l2 * b2[2]) * blade.Width +
     vtx[i.vid].y * (b2[1] * cps[1] + b2[2] * cps[2]) * blade.Height +
-    blade.Position;
+    blade.Position + float3(0, snoise(blade.Position/64)*2, 0);
     float3 normal = normalize(cross(l1, db2[1] * cps[1]) + cross(l2, db2[2] * cps[2]));
+    
+    //float d = 0.001;
+    //float dx = snoise((blade.Position + float3(d, 0, 0)) / 64) - snoise((blade.Position - float3(d, 0, 0)) / 64)/d*0.5;
+    //float dz = snoise((blade.Position + float3(0, 0, d)) / 64) - snoise((blade.Position - float3(0, 0, d)) / 64)/d*0.5f;
+    //float3 xn = normalize(float3(1, dx, 0));
+    //float3 zn = normalize(float3(0, dz, 1));
+    
+    //float3x3 m = float3x3
+    //(
+    //xn,
+    //cross(xn, zn),
+    //zn
+    //);
+    //normal = mul(transpose(m), normal);
+    
     PSin o;
     float3 ViewPosition = mul(viewMatrix, float4(pos, 1)).xyz;
     o.Position = mul(projMatrix, float4(ViewPosition, 1));

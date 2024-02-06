@@ -136,6 +136,10 @@ mini::Jelly::JellyApplication::JellyApplication(HINSTANCE instance)
 	m_groundBuffer = m_device.CreateVertexBuffer(quad);
 	psBytes = m_device.LoadByteCode(L"Ground" L"PS.cso");
 	m_ground_ps = m_device.CreatePixelShader(psBytes);
+	auto dsBytes = m_device.LoadByteCode(L"Ground" L"DS.cso");
+	m_ground_ds = m_device.CreateDomainShader(dsBytes);
+	auto hsBytes = m_device.LoadByteCode(L"Ground" L"HS.cso");
+	m_ground_hs = m_device.CreateHullShader(hsBytes);
 
 	/*ID3D11UnorderedAccessView* ppUAView[2] = { m_BuffDataUAV, m_BuffNumberUAV };
 	m_device.context()->CSSetUnorderedAccessViews(0, 2, ppUAView, nullptr);
@@ -145,7 +149,6 @@ mini::Jelly::JellyApplication::JellyApplication(HINSTANCE instance)
 	m_device.context()->CSSetUnorderedAccessViews(0, 2, ppUAViewnullptr, nullptr);*/
 
 	m_device.context()->RSSetState(m_rasterizerState.get());
-	m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 }
 
 void mini::Jelly::JellyApplication::render()
@@ -157,11 +160,14 @@ void mini::Jelly::JellyApplication::render()
 
 	m_device.context()->VSSetShader(m_ground_vs.get(), nullptr, 0);
 	m_device.context()->PSSetShader(m_ground_ps.get(), nullptr, 0);
+	m_device.context()->HSSetShader(m_ground_hs.get(), nullptr, 0);
+	m_device.context()->DSSetShader(m_ground_ds.get(), nullptr, 0);
 	ID3D11Buffer* vb[] = { m_groundBuffer.get() };
 	const UINT stride[] = { sizeof(XMFLOAT3) };
 	const UINT offset[] = { 0 };
 	m_device.context()->IASetVertexBuffers(0, 1, vb, stride, offset);
 	m_device.context()->IASetInputLayout(m_groundinputLayout.get());
+	m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
 	m_device.context()->Draw(4, 0);
 
 	doGrass();
@@ -237,6 +243,8 @@ void mini::Jelly::JellyApplication::doGrass()
 {
 	m_device.context()->VSSetShader(m_test_vs.get(), nullptr, 0);
 	m_device.context()->PSSetShader(m_test_ps.get(), nullptr, 0);
+	m_device.context()->HSSetShader(nullptr, nullptr, 0);
+	m_device.context()->DSSetShader(nullptr, nullptr, 0);
 	m_device.context()->CSSetShader(m_grass_cs.get(), NULL, 0);
 
 
@@ -245,6 +253,7 @@ void mini::Jelly::JellyApplication::doGrass()
 	const UINT offsets[] = { 0,0 };
 	m_device.context()->IASetVertexBuffers(0, 2, vb, strides, offsets);
 	m_device.context()->IASetInputLayout(m_grassinputLayout.get());
+	m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	for(int i = -10; i < 10; i ++)
 		for (int j = -10; j < 10; j++)
 		{

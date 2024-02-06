@@ -41,6 +41,8 @@ namespace mini::Jelly
 
 		dx_ptr<ID3D11PixelShader> m_ground_ps;
 		dx_ptr<ID3D11VertexShader> m_ground_vs;
+		dx_ptr<ID3D11DomainShader> m_ground_ds;
+		dx_ptr<ID3D11HullShader> m_ground_hs;
 		dx_ptr<ID3D11InputLayout > m_groundinputLayout;
 		dx_ptr<ID3D11Buffer> m_groundBuffer;
 

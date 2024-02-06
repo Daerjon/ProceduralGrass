@@ -7,16 +7,13 @@ cbuffer cbProj : register(b1)
 {
     float4x4 projMatrix;
 }
-
-struct PSin
+struct VS_CONTROL_POINT_OUTPUT
 {
-    float3 GlobalPosition : Position;
-    float4 Position : SV_Position;
+    float3 vPosition : WORLDPOS;
 };
-PSin main(float3 pos : POSITION)
+VS_CONTROL_POINT_OUTPUT main(float3 pos : POSITION)
 {
-    PSin o;
-    o.GlobalPosition = pos;
-    o.Position = mul(projMatrix, mul(viewMatrix, float4(pos, 1)));
+    VS_CONTROL_POINT_OUTPUT o;
+    o.vPosition = pos;
     return o;
 }
