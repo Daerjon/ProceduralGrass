@@ -158,7 +158,7 @@ float3 random3(uint num, inout uint hsh) //gives triple of pseudo-random float (
     return float3(x, y, z);
 }
 
-int2 getClump(float3 pos)
+int2 getClump(float3 pos, out float2 clumpPos)
 {
     float clumpVar = 0.7;
     
@@ -169,10 +169,10 @@ int2 getClump(float3 pos)
     for (int i = -1; i <= 1; i++)
         for (int j = -1; j <= 1; j++)
         {
-            float2 vec = (
-            float2(float(group.x) + float(i), float(group.y) + float(j))
+            float2 cpos = (float2(float(group.x) + float(i), float(group.y) + float(j))
             + clumpVar * random2(GroupsY * (group.x + i) + (group.y + j))
-            ) * 5 - pos.xz;
+            ) * 5;
+            float2 vec = cpos - pos.xz;
             float clump = dot(vec, vec);
             if (clump < mind)
             {
@@ -180,6 +180,8 @@ int2 getClump(float3 pos)
                 mind = clump;
                 groupOffset2 = groupOffset;
                 groupOffset = float2(i, j);
+                clumpPos = cpos;
+
             }
             else if (clump < min2d)
             {
@@ -199,7 +201,8 @@ void main( uint3 DTid : SV_DispatchThreadID )
     float3 Gpos = float3(group.x /*+ ((group.y % 2 == 0) ? 0.5f : 0.0f)*/, 0.0f, group.y);
     OutBuff[idx].Hash = hsh;
     float3 pos = (Gpos + random3(idx, hsh)) * 5;
-    int2 clump = getClump(pos);
+    float2 clumpPosition;
+    int2 clump = getClump(pos, clumpPosition);
     uint clumpIdx = hash(20 * clump.x + clump.y, 0);
     uint chsh = hash(clumpIdx, 0);
     float clumpHeight = random(clumpIdx, chsh);
@@ -211,7 +214,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
     OutBuff[idx].Width = random(idx, hsh) * 0.2f + 0.8f * random(clumpIdx, chsh);
     OutBuff[idx].Tilt = random(idx, hsh) * 0.3f + 0.7f * random(clumpIdx, chsh);
     OutBuff[idx].Bend = random(idx, hsh);
-    OutBuff[idx].ClumpFacing = clump;
+    OutBuff[idx].ClumpFacing = normalize(clumpPosition - pos.xz);
     OutBuff[idx].Type = hash(clumpIdx, chsh);
     hsh = hash(idx, hsh);
     OutBuff[idx].SideCurve = hash(idx, hsh);
