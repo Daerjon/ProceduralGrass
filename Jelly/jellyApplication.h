@@ -24,6 +24,8 @@ namespace mini::Jelly
 
 		void updateCamera();
 
+		void doGrass();
+
 
 		orbit_camera m_camera;
 		float m_camera_speed;
@@ -32,6 +34,10 @@ namespace mini::Jelly
 		ConstantBuffer<DirectX::XMFLOAT4X4> m_cbProj;
 		ConstantBuffer<DirectX::XMFLOAT4X4> m_cbModel;
 		ConstantBuffer<DirectX::XMFLOAT4X4> m_cbColor;
+
+		float m_time;
+		ConstantBuffer<DirectX::XMFLOAT4> m_cbTime;
+		ConstantBuffer<DirectX::XMINT4> m_cbGroup;
 
 		dx_ptr<ID3D11PixelShader> m_test_ps;
 		dx_ptr<ID3D11VertexShader> m_test_vs;

@@ -1,7 +1,17 @@
 #pragma target 5.1
-#define MaxX 16
-#define MaxY 16
+#define MaxX 768
+#define MaxY 1
 #define MaxIdx MaxX*MaxY
+
+cbuffer Time : register(b0)
+{
+    float4 time;
+}
+
+cbuffer Group : register(b1)
+{
+    int4 group;
+}
 
 int p[] = { 151,160,137,91,90,15,
    131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,
@@ -129,7 +139,7 @@ float2 random2(uint num, inout uint hsh) //gives pair of pseudo-random float (0,
 float3 random3(uint num, inout uint hsh) //gives triple of pseudo-random float (0,1)
 {
     float x = random(num, hsh);
-    float y = random(num, hsh);
+    float y = 0.f;
     float z = random(num, hsh);
     return float3(x, y, z);
 }
@@ -137,17 +147,18 @@ float3 random3(uint num, inout uint hsh) //gives triple of pseudo-random float (
 [numthreads(MaxX, MaxY, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )
 {
+    uint groupIdx = hash(20 * group.x + group.y, 0);
     uint idx = MaxY * DTid.x + DTid.y;
-    uint hsh = hash(idx, 0);
+    uint hsh = hash(idx, groupIdx);
+    float3 Gpos = float3(group.x, 0.0f , group.y);
     OutBuff[idx].Hash = hsh;
-    float3 pos = float3(0, 0, 0);
-    pos.xz = random2(idx, hsh);
+    float3 pos = (Gpos + random3(idx, hsh)) * 5;
     OutBuff[idx].Positon = pos;
-    OutBuff[idx].Facing = random2(idx, hsh);
-    OutBuff[idx].Wind = noise(pos.x, pos.y, pos.z);
-    OutBuff[idx].Height = random(idx, hsh);
-    OutBuff[idx].Width = random(idx, hsh);
-    OutBuff[idx].Tilt = random(idx, hsh);
+    OutBuff[idx].Facing = normalize(2.0f * random2(idx, hsh) - 1.0f);
+    OutBuff[idx].Wind = noise(pos.x + time.x, pos.y, pos.z);
+    OutBuff[idx].Height = (random(idx, hsh) + random(idx, hsh) + random(idx, hsh) + random(idx, hsh) + random(idx, hsh)) / 10.0f + 0.5f;
+    OutBuff[idx].Width = random(idx, hsh) * 0.7f + 0.5f;
+    OutBuff[idx].Tilt = random(idx, hsh) * 0.5f;
     OutBuff[idx].Bend = random(idx, hsh);
     OutBuff[idx].ClumpFacing = random2(idx, hsh);
     OutBuff[idx].Type = hash(idx, hsh);
