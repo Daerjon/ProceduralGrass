@@ -14,7 +14,8 @@ float4 main(PSin i) : SV_TARGET
         float3(0.3, 0.6, 0.1),
         float3(0.1, 0.6, 0.3),
         float3(0.2, 0.7, 0.2),
-        float3(0.282f, 0.541f, 0.243f)
+        float3(0.282f, 0.541f, 0.243f),
+        float3(0.5, 0.6, 0.1)
     };
     
  
