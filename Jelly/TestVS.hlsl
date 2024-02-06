@@ -92,7 +92,7 @@ PSin main(VSin i)
     vtx[i.vid].x * l * blade.Width +
     vtx[i.vid].y * (b2[1] * cps[1] + b2[2] * cps[2]) * blade.Height +
     blade.Position;
-    float3 normal = cross(l, (db2[1] * cps[1] + db2[2] * cps[2]));
+    float3 normal = normalize(cross(l, (db2[1] * cps[1] + db2[2] * cps[2])));
     PSin o;
     o.ViewPosition = mul(viewMatrix, float4(pos, 1)).xyz;
     o.Position = mul(projMatrix, float4(o.ViewPosition, 1));

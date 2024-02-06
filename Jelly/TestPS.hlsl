@@ -21,12 +21,8 @@ float4 main(PSin i) : SV_TARGET
  
     float diffuseLighting = saturate(dot(i.ViewNormal, -i.ViewLight));
  
-    float3 h = normalize(i.ViewPosition + i.ViewLight);
- 
-    float specLighting = pow(saturate(dot(h, i.ViewNormal)), 10);
  
     return float4(saturate(
-    (Colors[i.Color % 4] * (diffuseLighting + 0.1) * 0.6) +
-    (float3(1,1,1) * specLighting * 0.2) 
+    (Colors[i.Color % 4] * (diffuseLighting + 0.3) *0.5)
     ), 1);
 }
