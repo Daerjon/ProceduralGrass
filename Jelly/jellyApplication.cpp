@@ -120,7 +120,7 @@ mini::Jelly::JellyApplication::JellyApplication(HINSTANCE instance)
 
 void mini::Jelly::JellyApplication::render()
 {
-	float clearColor[4] = { 0.7f, 0.6f, 0.9f, 1.0f };
+	float clearColor[4] = { 0.15f, 0.7f, 0.85f, 1.0f };
 	m_device.context()->ClearRenderTargetView(m_renderTargetView.get(), clearColor);
 	m_device.context()->ClearDepthStencilView(m_depthStencilView.get(), D3D11_CLEAR_DEPTH, 1, 0);
 
