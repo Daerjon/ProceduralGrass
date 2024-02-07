@@ -180,9 +180,10 @@ int2 getClump(float2 pos, out float2 clumpPosition)
         for (int j = -1; j <= 1; j++)
         {
             int2 visited = home + int2(i, j);
+            int cind = clumpCount * (visited.x + clumpCount / 2) + visited.y + clumpCount / 2;
             float2 cpos =
             visited * clumpSize +
-            (random2(clumpCount * clumpCount + clumpCount * visited.x + visited.y) - 0.5f) * clumpVar +
+            (random2(cind) - 0.5f) * clumpVar +
             float2(visited.y&1==0 && HEX?0.5f:0.0f,0.5f) * clumpSize;
             
             float2 vec = cpos - pos;
@@ -211,7 +212,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
     float2 pos = groupPosition + random2(idx, hsh) * groupSize;
     float2 clumpPosition;
     int2 clump = getClump(pos, clumpPosition);
-    uint clumpIdx = hash(clumpCount * clump.x + clump.y, 0);
+    uint clumpIdx = hash(clumpCount * (clump.x + clumpCount/2) + (clump.y + clumpCount / 2), 0);
     uint chsh = hash(clumpIdx, 0);
     float2 toClump = (clumpPosition - pos) / clumpSize;
     pos = pos + toClump * (saturate(clumping * 0.05 / dot(toClump, toClump)) - 0.5);
@@ -226,7 +227,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
     
     OutBuff[idx].ClumpColor = hash(clumpIdx, chsh) % 4;
     
-    OutBuff[idx].Positon = float3(pos.x, 0, pos.y) + float3(0, snoise(float3(pos.x, 0, pos.y) / 64), 0);
+    OutBuff[idx].Positon = float3(pos.x, snoise(float3(pos.x, 0, pos.y) / 64), pos.y);
     float2 vecToClump = normalize(clumpPosition - pos);
     float2 clumpAllFacing = normalize(2.0f * random2(clumpIdx, chsh) - 1.0f);
     uint shouldFaceAway = hash(idx, hsh) % 3;

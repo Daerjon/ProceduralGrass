@@ -23,7 +23,7 @@ mini::Jelly::JellyApplication::JellyApplication(HINSTANCE instance)
 	m_side_length(1.0f), m_impulse_strength(0.1f),
 	m_s{
 		1.0f/7, 1.0f/7,
-		64.0f, 20.0f, 1.0f, 1.0f
+		64.0f, 20.0f, 2.5f, 1.0f
 	}
 {
 	m_cbView = create_buffer<XMFLOAT4X4>();
