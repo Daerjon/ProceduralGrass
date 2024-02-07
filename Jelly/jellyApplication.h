@@ -13,7 +13,7 @@ namespace mini::Jelly
 
 	class JellyApplication : public MyDxApplication
 	{
-		static constexpr std::wstring_view s_Jelly_window_title{L"Żelek"};
+		static constexpr std::wstring_view s_Jelly_window_title{L"Trawa"};
 	public:
 		JellyApplication(HINSTANCE instance);
 	private:
