@@ -1,9 +1,7 @@
 #pragma target 5.1
-#define MaxX 768
+#define MaxX 568
 #define MaxY 1
 #define MaxIdx MaxX*MaxY
-
-
 #define HEX 1
 
 cbuffer Time : register(b0)
@@ -233,6 +231,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
     OutBuff[idx].Width = clamp(eyeDistance / 10, 1, 15*128) * fading * (random(idx, hsh) + random(idx, hsh) + 3 * random(clumpIdx, chsh) + 5) / 10.0f;
     OutBuff[idx].Tilt = random(idx, hsh) * 0.25f + 0.25f * random(clumpIdx, chsh) + clumpDist*0.25;
     OutBuff[idx].Bend = random(idx, hsh) * 0.5f + 0.5f * random(clumpIdx, chsh) - clumpDist*0.25;
+
     OutBuff[idx].Type = hash(clumpIdx, chsh);
     hsh = hash(idx, hsh);
     OutBuff[idx].SideCurve = hash(idx, hsh);
