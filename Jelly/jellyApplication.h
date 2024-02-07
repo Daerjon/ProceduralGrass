@@ -35,10 +35,19 @@ namespace mini::Jelly
 		ConstantBuffer<DirectX::XMFLOAT4X4> m_cbModel;
 		ConstantBuffer<DirectX::XMFLOAT4X4> m_cbColor;
 
-		float m_time;
 		float m_fps;
-		ConstantBuffer<DirectX::XMFLOAT4> m_cbTime;
-		ConstantBuffer<DirectX::XMINT4> m_cbGroup;
+		float m_time;
+		struct settings
+		{
+			float timeScale;
+			float noiseScale;
+			float worldSize;
+			float maxGroups;
+			float clumpSize;
+			float clumping;
+		} m_s;
+		ConstantBuffer<DirectX::XMFLOAT4, 2> m_cbTime;
+		ConstantBuffer<DirectX::XMFLOAT4, 2> m_cbGroup;
 
 		dx_ptr<ID3D11PixelShader> m_ground_ps;
 		dx_ptr<ID3D11VertexShader> m_ground_vs;

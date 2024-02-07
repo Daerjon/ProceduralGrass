@@ -2,18 +2,28 @@
 #define MaxX 568
 #define MaxY 1
 #define MaxIdx MaxX*MaxY
-#define GroupsX 40
-#define GroupsY 40
-#define PatchSize 5
+#define HEX 1
 
 cbuffer Time : register(b0)
 {
-    float4 time;
+    float time;
+    float timeScale;
+    float noiseScale;
+    float _1;
+    
+    float worldSize;
+    float groupCount;
+    float clumpSize;
+    #define clumpCount (worldSize/clumpSize)
+    float clumping;
 }
 
 cbuffer Group : register(b1)
 {
-    int4 group;
+    float2 groupPosition;
+    float groupSize;
+    float lod;
+    float4 eyePosition;
 }
 
 float3 mod289(float3 x)
@@ -125,9 +135,8 @@ uint hash(uint num, uint hash) //gives pseudo-random uint
 
 float random(uint num, inout uint hsh) //gives pseudo-random float (0,1)
 {
-    uint seed = hash(num, hsh);
     hsh = hash(num, hsh);
-    return uint2float(seed);
+    return uint2float(hsh);
 }
 
 float random(uint num) //gives pseudo-random float (0,1)
@@ -158,75 +167,77 @@ float3 random3(uint num, inout uint hsh) //gives triple of pseudo-random float (
     return float3(x, y, z);
 }
 
-int2 getClump(float3 pos, out float2 clumpPos)
+int2 getClump(float2 pos, out float2 clumpPosition)
 {
-    float clumpVar = 0.7;
+    float clumpVar = 0.9 * clumpSize;
     
     float mind = 100000.0f;
-    float min2d = 9999.0f;
-    int2 groupOffset = float2(-1, -1);
-    int2 groupOffset2 = float2(-1, -1);
+    int2 clump;
+    int2 home = floor(pos / clumpSize);
+    if (home.y & 1 == 0 && HEX)
+        home.x = floor(pos.x / clumpSize + 0.5f);
     for (int i = -1; i <= 1; i++)
         for (int j = -1; j <= 1; j++)
         {
-            float2 cpos = (float2(float(group.x) + float(i), float(group.y) + float(j))
-            + clumpVar * random2(GroupsY * (group.x + i) + (group.y + j))
-            ) * 5;
-            float2 vec = cpos - pos.xz;
-            float clump = dot(vec, vec);
-            if (clump < mind)
+            int2 visited = home + int2(i, j);
+            float2 cpos =
+            visited * clumpSize +
+            (random2(clumpCount * clumpCount + clumpCount * visited.x + visited.y) - 0.5f) * clumpVar +
+            float2(visited.y&1==0 && HEX?0.5f:0.0f,0.5f) * clumpSize;
+            
+            float2 vec = cpos - pos;
+            float dist = dot(vec, vec);
+            if (dist < mind)
             {
-                min2d = mind;
-                mind = clump;
-                groupOffset2 = groupOffset;
-                groupOffset = float2(i, j);
-                clumpPos = cpos;
-
-            }
-            else if (clump < min2d)
-            {
-                min2d = clump;
-                groupOffset2 = float2(i, j);
+                mind = dist;
+                clump = home + int2(i, j);
+                clumpPosition = cpos;
             }
         }
-    return groupOffset + group.xy;
+    return clump;
 }
 
 [numthreads(MaxX, MaxY, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )
 {
-    uint groupIdx = hash(GroupsY * group.x + group.y, 0); //Set Id of Group
-    float3 Gpos = float3(group.x, 0.0f, group.y); //Position of group (used for position offset)
-    uint idx = MaxY * DTid.x + DTid.y; //Set Grass Id
-    uint hsh = hash(idx, groupIdx); //Set Hash of blade
+    uint groupIdx = hash(
+    groupCount * groupCount +
+    groupCount * groupPosition.x/groupSize +
+    groupPosition.y/groupSize, 0);
+    uint idx = MaxY * DTid.x + DTid.y;
+    uint hsh = hash(idx, groupIdx);
     OutBuff[idx].Hash = hsh;
-    float3 pos = random3(idx, hsh); //Offset vector for position of blade from group begginning
-    pos = (Gpos + pos) * 5;
-    float2 clumpPosition; // Position of center of clump
-    int2 clump = getClump(pos, clumpPosition); //Clump of blade
-    uint clumpIdx = hash(20 * clump.x + clump.y, 0); //Clump Index
-    uint chsh = hash(clumpIdx, 0); //Clump hash (for parameters) [Should be changed to some kind of Lookup Table]
-    float2 dpos = clumpPosition - pos.xz; //vector from blade to clump
-    dpos = dpos * dot(dpos,dpos) / 2.0f;
-    //pos.xz -= dpos;
-    float clumpHeight = random(clumpIdx, chsh);
-    float clumpWidth = random(clumpIdx, chsh);
-    OutBuff[idx].Positon = pos;
-    float2 vecToClump = normalize(clumpPosition - pos.xz);
-    float2 clumpAllFacing = normalize(2.0f * random2(clumpIdx, chsh) - 1.0f);
-    OutBuff[idx].ClumpFacing = vecToClump;
-    uint shouldFaceAway = hash(idx, hsh) % 2;
-    OutBuff[idx].Facing = shouldFaceAway == 0 ? -vecToClump : clumpAllFacing;
-    OutBuff[idx].Wind = snoise(float3((pos.x + time.x), time.x, pos.z) / 7.0f);
-    OutBuff[idx].Height = (random(idx, hsh) + random(idx, hsh) + 3 * clumpHeight) / 5.0f;
-    OutBuff[idx].Width = random(idx, hsh) * 0.2f + 0.8f * random(clumpIdx, chsh);
-    OutBuff[idx].Tilt = random(idx, hsh) * 0.3f + 0.7f * random(clumpIdx, chsh);
-    OutBuff[idx].Bend = random(idx, hsh);
+        
+    float2 pos = groupPosition + random2(idx, hsh) * groupSize;
+    float2 clumpPosition;
+    int2 clump = getClump(pos, clumpPosition);
+    uint clumpIdx = hash(clumpCount * clumpCount + clumpCount * clump.x + clump.y, 0);
+    uint chsh = hash(clumpIdx, 0);
+    float2 toClump = (clumpPosition - pos) / clumpSize;
+    pos = pos + toClump * (saturate(clumping * 0.05 / dot(toClump, toClump)) - 0.5);
+    toClump = (clumpPosition - pos) / clumpSize;
+    float clumpDist = dot(toClump, toClump);
+    
+    float eyeDistance = length(eyePosition.xyz - float3(pos.x, 0, pos.y));
+    float lodEase = saturate((eyeDistance - 15 * lod) / (15 * lod));
+    float fading = 1;
+    if (random(idx, hsh) < pow(lodEase, 1) - 0.25f)
+        fading = 0;
+    
+    OutBuff[idx].Positon = float3(pos.x, 0, pos.y);
+    OutBuff[idx].Facing = normalize(2.0f * random2(idx, hsh) - 1.0f);
+    OutBuff[idx].Wind = snoise(float3(pos.x * noiseScale + time.x * timeScale, time.x * timeScale, pos.y * noiseScale));
+    OutBuff[idx].Height = fading * (pow(1 - clumpDist, 1)+1) * (random(idx, hsh) + random(idx, hsh) + 3 * random(clumpIdx, chsh) /*+ 5 * (pos.x / worldSize + 0.5f)*/) / 5.0f;
+    OutBuff[idx].Width = clamp(eyeDistance / 10, 1, 15*128) * fading * (random(idx, hsh) + random(idx, hsh) + 3 * random(clumpIdx, chsh) + 5) / 10.0f;
+    OutBuff[idx].Tilt = random(idx, hsh) * 0.25f + 0.25f * random(clumpIdx, chsh) + clumpDist*0.25;
+    OutBuff[idx].Bend = random(idx, hsh) * 0.5f + 0.5f * random(clumpIdx, chsh) - clumpDist*0.25;
+
     OutBuff[idx].Type = hash(clumpIdx, chsh);
     hsh = hash(idx, hsh);
     OutBuff[idx].SideCurve = hash(idx, hsh);
     hsh = hash(idx, hsh);
     OutBuff[idx].ClumpColor = hash(clumpIdx, chsh) % 4;
+    OutBuff[idx].ClumpFacing = normalize(toClump);
     valid[idx] = 1;
     for (int i = 1; i < 512; i<<=2)
     {

@@ -49,7 +49,7 @@ int MyDxApplication::main_loop()
 			ImGui::Render();
 			auto drawData = ImGui::GetDrawData();
 			ImGui_ImplDX11_RenderDrawData(drawData);
-			m_device.swapChain().Present(1, 0);
+			m_device.swapChain().Present(0, 0);
 		}
 	}
 	return static_cast<int>(msg.wParam);
