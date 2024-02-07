@@ -44,9 +44,10 @@ namespace mini::Jelly
 			float worldSize;
 			float maxGroups;
 			float clumpSize;
+			float clumping;
 		} m_s;
 		ConstantBuffer<DirectX::XMFLOAT4, 2> m_cbTime;
-		ConstantBuffer<DirectX::XMFLOAT4> m_cbGroup;
+		ConstantBuffer<DirectX::XMFLOAT4, 2> m_cbGroup;
 
 		dx_ptr<ID3D11PixelShader> m_ground_ps;
 		dx_ptr<ID3D11VertexShader> m_ground_vs;

@@ -41,7 +41,7 @@ PSin main(
 		patch[2].vPosition * (1 - domain.x) * (domain.y) +
 		patch[3].vPosition * (domain.x) * (domain.y),
 	0);
-    o.GlobalPosition += float4(0, snoise(o.GlobalPosition.xyz/64), 0, 0)*2;
+    o.GlobalPosition += float4(0, snoise(o.GlobalPosition.xyz/64), 0, 0);
     o.Position = mul(projMatrix, mul(viewMatrix, float4(o.GlobalPosition, 1)));
 	return o;
 }
