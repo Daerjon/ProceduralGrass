@@ -227,7 +227,19 @@ void main( uint3 DTid : SV_DispatchThreadID )
     OutBuff[idx].ClumpColor = hash(clumpIdx, chsh) % 4;
     
     OutBuff[idx].Positon = float3(pos.x, 0, pos.y) + float3(0, snoise(float3(pos.x, 0, pos.y) / 64), 0);
-    OutBuff[idx].Facing = normalize(2.0f * random2(idx, hsh) - 1.0f);
+    float2 vecToClump = normalize(clumpPosition - pos);
+    float2 clumpAllFacing = normalize(2.0f * random2(clumpIdx, chsh) - 1.0f);
+    uint shouldFaceAway = hash(idx, hsh) % 3;
+    switch (shouldFaceAway)
+    {
+        case 0:
+            OutBuff[idx].Facing = -vecToClump;
+            break;
+        default:
+            OutBuff[idx].Facing = clumpAllFacing;
+            break;
+    }
+    
     OutBuff[idx].Wind = snoise(float3(pos.x * noiseScale + time.x * timeScale, time.x * timeScale, pos.y * noiseScale));
     OutBuff[idx].Height = fading * (pow(1 - clumpDist, 1)+1) * (random(idx, hsh) + random(idx, hsh) + 3 * random(clumpIdx, chsh) /*+ 5 * (pos.x / worldSize + 0.5f)*/) / 5.0f;
     OutBuff[idx].Width = clamp(eyeDistance / 10, 1, 15*128) * fading * (random(idx, hsh) + random(idx, hsh) + 3 * random(clumpIdx, chsh) + 5) / 10.0f;
@@ -238,7 +250,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
     hsh = hash(idx, hsh);
     OutBuff[idx].SideCurve = hash(idx, hsh);
     hsh = hash(idx, hsh);
-    OutBuff[idx].ClumpFacing = normalize(toClump);
+    OutBuff[idx].ClumpFacing = vecToClump;
     valid[idx] = 1;
     for (int i = 1; i < 512; i<<=2)
     {
