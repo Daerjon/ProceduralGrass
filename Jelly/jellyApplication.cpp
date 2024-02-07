@@ -187,8 +187,17 @@ void mini::Jelly::JellyApplication::renderGui()
 		ImGui::DragInt("Amount of grass:", &tmp, 1, 1, 40, "%d", ImGuiSliderFlags_AlwaysClamp);
 		m_s.maxGroups = (float)tmp*2;
 		ImGui::DragFloat("Grass clump size:", &m_s.clumpSize, 0.01f, 0.01f, 0, "%.2f");
-		ImGui::PopItemWidth();
 		ImGui::DragFloat("Grass clumping factor:", &m_s.clumping, 0.01f, 0, 0, "%.2f");
+		sc = m_viewFrustum.farPlane();
+		if (ImGui::DragFloat("Far plane:", &sc, 0.1f, m_viewFrustum.nearPlane(), 100, "%.1f"))
+		{
+			m_viewFrustum.setFarPlane(sc);
+			XMFLOAT4X4 m;
+			XMStoreFloat4x4(&m, m_viewFrustum.getProjectionMatrix());
+			update_buffer(m_cbProj, m);
+		}
+
+		ImGui::PopItemWidth();
 		ImGui::End();
 	}
 }
@@ -301,7 +310,7 @@ void mini::Jelly::JellyApplication::doGrass()
 							float dist = XMVectorGetX(XMVector3Length(XMLoadFloat4(&center) - XMLoadFloat4(&eye)));
 							auto v = XMVector4Transform(XMLoadFloat4(&center), mats);
 							v = v / XMVectorGetW(v);
-							if (fabsf(XMVectorGetX(v)) < 1 && fabsf(XMVectorGetY(v)) < 1)
+							if (fabsf(XMVectorGetX(v)) < 1 && fabsf(XMVectorGetY(v)) < 1 && fabsf(XMVectorGetZ(v)) < 1)
 								in = true;
 							mind = fminf(mind, dist);
 						}

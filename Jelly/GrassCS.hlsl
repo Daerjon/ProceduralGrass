@@ -226,7 +226,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
     
     OutBuff[idx].ClumpColor = hash(clumpIdx, chsh) % 4;
     
-    OutBuff[idx].Positon = float3(pos.x, 0, pos.y);
+    OutBuff[idx].Positon = float3(pos.x, 0, pos.y) + float3(0, snoise(float3(pos.x, 0, pos.y) / 64), 0);
     OutBuff[idx].Facing = normalize(2.0f * random2(idx, hsh) - 1.0f);
     OutBuff[idx].Wind = snoise(float3(pos.x * noiseScale + time.x * timeScale, time.x * timeScale, pos.y * noiseScale));
     OutBuff[idx].Height = fading * (pow(1 - clumpDist, 1)+1) * (random(idx, hsh) + random(idx, hsh) + 3 * random(clumpIdx, chsh) /*+ 5 * (pos.x / worldSize + 0.5f)*/) / 5.0f;
