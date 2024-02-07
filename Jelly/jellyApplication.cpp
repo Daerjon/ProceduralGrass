@@ -20,7 +20,11 @@ mini::Jelly::JellyApplication::JellyApplication(HINSTANCE instance)
 	m_time(0.0f),
 	m_simulation_step(0.005f),
 	
-	m_side_length(1.0f), m_impulse_strength(0.1f)
+	m_side_length(1.0f), m_impulse_strength(0.1f),
+	m_s{
+		1.0f/7, 1.0f/7,
+		80.0f, 20.0f, 3.0f
+	}
 {
 	m_cbView = create_buffer<XMFLOAT4X4>();
 	XMFLOAT4X4 m;
@@ -36,19 +40,8 @@ mini::Jelly::JellyApplication::JellyApplication(HINSTANCE instance)
 		XMMatrixScaling(0.005f, 0.005f, 0.005f) *
 		XMMatrixTranslation(0.5f,0.5f,0.5f));
 	m_cbModel = create_buffer<XMFLOAT4X4>(m);
-	XMFLOAT4 t;
-	t.x = 0;
-	t.y = 0;
-	t.z = 0;
-	t.w = 0;
-	m_cbTime = create_buffer<XMFLOAT4>(t);
-
-	XMINT4 g;
-	g.x = 0;
-	g.y = 0;
-	g.z = 0;
-	g.w = 0;
-	m_cbGroup = create_buffer<XMINT4>(g);
+	m_cbTime = create_buffer<XMFLOAT4, 2>();
+	m_cbGroup = create_buffer<XMFLOAT4>();
 
 	ID3D11Buffer* cb = m_cbView;
 	m_device.context()->VSSetConstantBuffers(0, 1, &cb);
@@ -88,8 +81,8 @@ mini::Jelly::JellyApplication::JellyApplication(HINSTANCE instance)
 	auto vsBytes = m_device.LoadByteCode(L"Test" L"VS.cso");
 	m_test_vs = m_device.CreateVertexShader(vsBytes);
 
-
-	m_grassinputLayout = m_device.CreateInputLayout(inputLayout, 12, vsBytes);
+	D3D11_INPUT_ELEMENT_DESC empty;
+	m_grassinputLayout = m_device.CreateInputLayout(&empty, 0, vsBytes);
 
 	std::vector<inputElement> poss;
 	for(int x = 0; x<100; x++)
@@ -101,7 +94,7 @@ mini::Jelly::JellyApplication::JellyApplication(HINSTANCE instance)
 				});
 		}
 
-	m_bladeBuffer = m_device.CreateVertexBuffer(poss.data(), poss.size());
+	//m_bladeBuffer = m_device.CreateVertexBuffer(poss.data(), poss.size());
 	//m_bladeBuffer = m_device.CreateVertexBuffer<float>(0);
 
 	auto psBytes = m_device.LoadByteCode(L"Test"  L"PS.cso");
@@ -125,7 +118,7 @@ mini::Jelly::JellyApplication::JellyApplication(HINSTANCE instance)
 		/*UINT InstanceDataStepRate*/ 0}
 	};
 	m_groundinputLayout = m_device.CreateInputLayout(groundLayout, 1, vsBytes);
-	float groundExtent = 5 * 10;
+	float groundExtent = 5 * 5;
 	XMFLOAT3 quad[] =
 	{
 		{-groundExtent, 0, -groundExtent},
@@ -181,7 +174,16 @@ void mini::Jelly::JellyApplication::renderGui()
 
 void mini::Jelly::JellyApplication::update(utils::clock const& clock)
 {
-	XMFLOAT4 t{ m_time, 0.0f, 0.0f, 0.0f };
+	XMFLOAT4 t[] = {
+		{ m_time, // time
+		1.0f / 7, // time scale
+		1.0f / 7, // noise scale
+		0.0f }, // free
+		{ 80, // world size
+		10, // max amount of render groups in one dimension
+		3, // clump size
+		0.0f } // free
+	};
 	update_buffer(m_cbTime, t);
 	float dt = clock.frame_time();
 	m_time += dt;
@@ -248,16 +250,13 @@ void mini::Jelly::JellyApplication::doGrass()
 	m_device.context()->CSSetShader(m_grass_cs.get(), NULL, 0);
 
 
-	ID3D11Buffer* vb[] = { nullptr, m_bladeBuffer.get() };
-	const UINT strides[] = { 0,sizeof(inputElement) };
-	const UINT offsets[] = { 0,0 };
-	m_device.context()->IASetVertexBuffers(0, 2, vb, strides, offsets);
+	m_device.context()->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
 	m_device.context()->IASetInputLayout(m_grassinputLayout.get());
 	m_device.context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-	for(int i = -10; i < 10; i ++)
-		for (int j = -10; j < 10; j++)
+	for(int i = -5; i < 5; i ++)
+		for (int j = -5; j < 5; j++)
 		{
-			XMINT4 g{ i, j, 0, 0 };
+			XMFLOAT4 g{ i*5.0f, j*5.0f, 5.0f, 5.0f };
 			update_buffer(m_cbGroup, g);
 			ID3D11UnorderedAccessView* ppUAView[2] = { m_BuffDataUAV, m_BuffNumberUAV };
 			m_device.context()->CSSetUnorderedAccessViews(0, 2, ppUAView, nullptr);
