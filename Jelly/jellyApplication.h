@@ -35,6 +35,7 @@ namespace mini::Jelly
 		ConstantBuffer<DirectX::XMFLOAT4X4> m_cbModel;
 		ConstantBuffer<DirectX::XMFLOAT4X4> m_cbColor;
 
+		float m_fps;
 		float m_time;
 		struct settings
 		{

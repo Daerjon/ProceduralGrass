@@ -170,6 +170,11 @@ void mini::Jelly::JellyApplication::render()
 void mini::Jelly::JellyApplication::renderGui()
 {
 	ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
+	{
+		ImGui::Begin("FPS");
+		ImGui::InputFloat("FPS:", &m_fps);
+		ImGui::End();
+	}
 }
 
 void mini::Jelly::JellyApplication::update(utils::clock const& clock)
@@ -186,6 +191,7 @@ void mini::Jelly::JellyApplication::update(utils::clock const& clock)
 	};
 	update_buffer(m_cbTime, t);
 	float dt = clock.frame_time();
+	m_fps = clock.fps();
 	m_time += dt;
 	updateControls(dt);
 	updateCamera();
