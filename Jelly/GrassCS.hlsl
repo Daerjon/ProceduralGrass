@@ -211,7 +211,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
     float2 pos = groupPosition + random2(idx, hsh) * groupSize;
     float2 clumpPosition;
     int2 clump = getClump(pos, clumpPosition);
-    uint clumpIdx = hash(clumpCount * clumpCount + clumpCount * clump.x + clump.y, 0);
+    uint clumpIdx = hash(clumpCount * clump.x + clump.y, 0);
     uint chsh = hash(clumpIdx, 0);
     float2 toClump = (clumpPosition - pos) / clumpSize;
     pos = pos + toClump * (saturate(clumping * 0.05 / dot(toClump, toClump)) - 0.5);
@@ -223,6 +223,8 @@ void main( uint3 DTid : SV_DispatchThreadID )
     float fading = 1;
     if (random(idx, hsh) < pow(lodEase, 1) - 0.25f)
         fading = 0;
+    
+    OutBuff[idx].ClumpColor = hash(clumpIdx, chsh) % 4;
     
     OutBuff[idx].Positon = float3(pos.x, 0, pos.y);
     OutBuff[idx].Facing = normalize(2.0f * random2(idx, hsh) - 1.0f);
@@ -236,7 +238,6 @@ void main( uint3 DTid : SV_DispatchThreadID )
     hsh = hash(idx, hsh);
     OutBuff[idx].SideCurve = hash(idx, hsh);
     hsh = hash(idx, hsh);
-    OutBuff[idx].ClumpColor = hash(clumpIdx, chsh) % 4;
     OutBuff[idx].ClumpFacing = normalize(toClump);
     valid[idx] = 1;
     for (int i = 1; i < 512; i<<=2)
